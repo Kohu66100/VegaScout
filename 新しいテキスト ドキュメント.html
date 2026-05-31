@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>10連ガチャ</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            font-size: 16px;
+        }
+
+        #result {
+            margin-top: 20px;
+            white-space: pre-line;
+            text-align: left;
+            display: inline-block;
+            border: 1px solid #ccc;
+            padding: 15px;
+            min-width: 250px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>10連ガチャ</h1>
+
+    <button onclick="rollGacha()">10連ガチャを回す</button>
+    <button onclick="copyResult()">結果をコピー</button>
+
+    <div id="result"></div>
+
+    <script>
+        let currentResult = "";
+
+        function randomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function rollGacha() {
+            let lines = [];
+
+            for (let i = 1; i <= 10; i++) {
+                const dice1 = randomInt(1, 6);
+                const dice2 = randomInt(1, 30);
+
+                lines.push(
+                    `${i}回目: ${dice1} : ${dice2}`
+                );
+            }
+
+            currentResult = lines.join("\n");
+            document.getElementById("result").textContent = currentResult;
+        }
+
+        async function copyResult() {
+            if (!currentResult) {
+                alert("先にガチャを回してください");
+                return;
+            }
+
+            await navigator.clipboard.writeText(currentResult);
+            alert("コピーしました");
+        }
+    </script>
+
+</body>
+</html>
