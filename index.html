@@ -322,7 +322,7 @@ select {
     <div class="filter-group">
         <label class="filter-label"><input type="checkbox" name="allowedFamily" value="一般" checked>一般</label>
         <label class="filter-label"><input type="checkbox" name="allowedFamily" value="Tier1">Tier1</label>
-        <label class="filter-label"><input type="checkbox" name="allowedFamily" value="超耐久">超耐久</label>
+        <label class="filter-label"><input type="checkbox" name="allowedFamily" value="封殺">封殺</label>
         <div class="break"></div>
         <label class="filter-label"><input type="checkbox" name="allowedFamily" value="600族" checked>600族</label>
         <label class="filter-label"><input type="checkbox" name="allowedFamily" value="準伝説" checked>準伝説</label>
@@ -370,7 +370,7 @@ select {
     <p>ポケモンがランダムに提示されます。</p>
     <p>6回選択してスカウトチームを作成しましょう。</p>
     <br>
-    <p>名前と日付によって抽選内容が固定されます。</p>
+    <p>名前と日付、各種設定によって抽選内容が固定されます。</p>
 </div>
 
 <div id="filterGuide">
@@ -379,8 +379,8 @@ select {
     <p>◆Tier1</p>
     <p>カモナイツ/ラブリン/ドルマイン</p>
     
-    <p>◆超耐久</p>
-    <p>ハピナス/シルドール/ツボツボ/ナットレイ</p>
+    <p>◆封殺</p>
+    <p>ハピナス/シルドール/ツボツボ/ナットレイ/キノガッサ/サムラダケ/ニートン</p>
     
     <p>◆600族</p>
     <p>バンギラス/メタグロス/ガブリアス/ドラドーン</p>
@@ -443,14 +443,14 @@ const csvData =`name,type1,type2,family,family2,family3,link
 ネクロシア,ゴースト,あく,一般,ベガ,,https://w.atwiki.jp/altair1/pages/274.html
 バフォット,はがね,あく,一般,ベガ,,https://w.atwiki.jp/altair1/pages/277.html
 ミルタンク,ノーマル,,一般,本家,,https://w.atwiki.jp/altair1/pages/278.html
-ツボツボ,むし,いわ,超耐久,本家,,https://w.atwiki.jp/altair1/pages/279.html
+ツボツボ,むし,いわ,封殺,本家,,https://w.atwiki.jp/altair1/pages/279.html
 フィニクス,ほのお,ドラゴン,一般,ベガ,,https://w.atwiki.jp/altair1/pages/282.html
 コクジャク,エスパー,ひこう,一般,ベガ,,https://w.atwiki.jp/altair1/pages/284.html
 コーシャン,ほのお,あく,一般,ベガ,,https://w.atwiki.jp/altair1/pages/286.html
 ボルトック,でんき,,一般,ベガ,,https://w.atwiki.jp/altair1/pages/288.html
 テペトラー,みず,かくとう,一般,ベガ,,https://w.atwiki.jp/altair1/pages/290.html
 ロップル,ゴースト,エスパー,一般,ベガ,,https://w.atwiki.jp/altair1/pages/291.html
-ニートン,ゴースト,,一般,ベガ,,https://w.atwiki.jp/altair1/pages/294.html
+ニートン,ゴースト,,封殺,ベガ,,https://w.atwiki.jp/altair1/pages/294.html
 ヨルノズク,ノーマル,ひこう,一般,本家,,https://w.atwiki.jp/altair1/pages/296.html
 ハクタクン,エスパー,,一般,ベガ,,https://w.atwiki.jp/altair1/pages/297.html
 エレキブル,でんき,,一般,本家,,https://w.atwiki.jp/altair1/pages/300.html
@@ -527,7 +527,7 @@ const csvData =`name,type1,type2,family,family2,family3,link
 テイルーン,ゴースト,ひこう,一般,ベガ,,https://w.atwiki.jp/altair1/pages/457.html
 モグルトン,じめん,はがね,一般,ベガ,,https://w.atwiki.jp/altair1/pages/458.html
 マニューラ,あく,こおり,一般,本家,,https://w.atwiki.jp/altair1/pages/460.html
-キノガッサ,くさ,かくとう,一般,本家,,https://w.atwiki.jp/altair1/pages/462.html
+キノガッサ,くさ,かくとう,封殺,本家,,https://w.atwiki.jp/altair1/pages/462.html
 ラクチャン,ノーマル,,除外,ベガ,,https://w.atwiki.jp/altair1/pages/463.html
 ドゴン,かくとう,ひこう,一般,ベガ,,https://w.atwiki.jp/altair1/pages/464.html
 トコヤミ,あく,ゴースト,一般,ベガ,,https://w.atwiki.jp/altair1/pages/466.html
@@ -546,7 +546,7 @@ const csvData =`name,type1,type2,family,family2,family3,link
 ドサーモン,みず,じめん,一般,ベガ,,https://w.atwiki.jp/altair1/pages/495.html
 テッコンボ,かくとう,いわ,一般,ベガ,,https://w.atwiki.jp/altair1/pages/497.html
 ボンバット,じめん,ゴースト,一般,ベガ,,https://w.atwiki.jp/altair1/pages/498.html
-ハピナス,ノーマル,,超耐久,本家,,https://w.atwiki.jp/altair1/pages/501.html
+ハピナス,ノーマル,,封殺,本家,,https://w.atwiki.jp/altair1/pages/501.html
 テッカニン,むし,ひこう,一般,本家,,https://w.atwiki.jp/altair1/pages/503.html
 ヌケニン,むし,ゴースト,除外,本家,,https://w.atwiki.jp/altair1/pages/504.html
 サンドリル,じめん,,一般,ベガ,,https://w.atwiki.jp/altair1/pages/507.html
@@ -555,7 +555,7 @@ const csvData =`name,type1,type2,family,family2,family3,link
 ヒョウカク,こおり,,一般,ベガ,,https://w.atwiki.jp/altair1/pages/511.html
 サーナイト,エスパー,,一般,本家,,https://w.atwiki.jp/altair1/pages/514.html
 エルレイド,エスパー,かくとう,一般,本家,,https://w.atwiki.jp/altair1/pages/515.html
-シルドール,エスパー,,超耐久,ベガ,,https://w.atwiki.jp/altair1/pages/517.html
+シルドール,エスパー,,封殺,ベガ,,https://w.atwiki.jp/altair1/pages/517.html
 セルディー,みず,こおり,一般,ベガ,,https://w.atwiki.jp/altair1/pages/529.html
 バーネッコ,くさ,じめん,一般,ベガ,,https://w.atwiki.jp/altair1/pages/531.html
 ヒカリゴケ,くさ,でんき,一般,ベガ,,https://w.atwiki.jp/altair1/pages/533.html
@@ -574,7 +574,7 @@ const csvData =`name,type1,type2,family,family2,family3,link
 ギギギアル,はがね,,一般,本家,,https://w.atwiki.jp/altair1/pages/558.html
 ラブリン,みず,ノーマル,Tier1,ベガ,,https://w.atwiki.jp/altair1/pages/560.html
 ラプラス,みず,こおり,一般,本家,,https://w.atwiki.jp/altair1/pages/562.html
-サムラダケ,くさ,ほのお,一般,ベガ,,https://w.atwiki.jp/altair1/pages/564.html
+サムラダケ,くさ,ほのお,封殺,ベガ,,https://w.atwiki.jp/altair1/pages/564.html
 ノクタス,くさ,あく,一般,本家,,https://w.atwiki.jp/altair1/pages/566.html
 プテリクス,いわ,ひこう,一般,ベガ,,https://w.atwiki.jp/altair1/pages/568.html
 ティラノス,いわ,あく,一般,ベガ,,https://w.atwiki.jp/altair1/pages/569.html
@@ -582,7 +582,7 @@ const csvData =`name,type1,type2,family,family2,family3,link
 ブレイオー,はがね,かくとう,一般,ベガ,,https://w.atwiki.jp/altair1/pages/572.html
 テルテン,ノーマル,,一般,ベガ,,https://w.atwiki.jp/altair1/pages/518.html
 イワパレス,むし,いわ,一般,本家,,https://w.atwiki.jp/altair1/pages/520.html
-ナットレイ,くさ,はがね,超耐久,本家,,https://w.atwiki.jp/altair1/pages/522.html
+ナットレイ,くさ,はがね,封殺,本家,,https://w.atwiki.jp/altair1/pages/522.html
 シビルドン,でんき,,一般,本家,,https://w.atwiki.jp/altair1/pages/525.html
 プレゼンタ,こおり,ひこう,一般,ベガ,,https://w.atwiki.jp/altair1/pages/527.html
 ストータス,ほのお,いわ,一般,ベガ,,https://w.atwiki.jp/altair1/pages/368.html
@@ -611,6 +611,7 @@ let round = 1;
 let candidateCount = 5;
 let activeRules = [];
 let allowedFamiliesGlobal = [];
+let currentSeed = 0;
 
 function startGame(){
     // 選択された特殊ルールをすべて配列に取得
@@ -624,6 +625,12 @@ function startGame(){
     selectedCharacters = [];
     round = 1;
     candidateCount = Number(document.getElementById("candidateCount").value);
+
+    let name = document.getElementById("username").value;
+    if(name === ""){ name = "ベガ"; }
+    const today = new Intl.DateTimeFormat("sv-SE", { timeZone: "Asia/Tokyo" }).format(new Date());
+    
+    currentSeed = stringToSeed(name + today + candidateCount + activeRules.join(","));
 
     document.getElementById("startArea").style.display = "none";
     document.getElementById("candidateArea").style.display = "none";
@@ -650,13 +657,10 @@ function parseCSV(csv) {
 }
 
 function showChoices(){
-    let name = document.getElementById("username").value;
-    if(name === ""){ name = "ベガ"; }
-
-    const today = new Intl.DateTimeFormat("sv-SE", { timeZone: "Asia/Tokyo" }).format(new Date());
-    // シード値生成のキーに選択中のルール配列を結合して利用
-    let seed = stringToSeed(name + today + candidateCount + round + activeRules.join(","));
     
+    let name = document.getElementById("username").value || "ベガ";
+    const today = new Intl.DateTimeFormat("sv-SE", { timeZone: "Asia/Tokyo" }).format(new Date());
+
     const boostNotice = document.getElementById("boostNotice");
     boostNotice.style.visibility = "hidden";
 
@@ -671,7 +675,7 @@ function showChoices(){
                 const isNotLegendaryOr600 = (c.family !== "準伝説" && c.family !== "禁止級" && c.family !== "幻" && c.family !== "600族");
                 return isAllowedByFilter && isNotLegendaryOr600;
             });
-            noticeTexts.push("🛡️ 1〜5回目：伝説・600族 出現なし");
+            noticeTexts.push("🐇 1〜5回目：伝説・600族 出現なし");
         } else if (round === 6) {
             currentPool = currentPool.filter(c => {
                 const familyKey = (c.family === "") ? "一般" : c.family;
@@ -679,7 +683,7 @@ function showChoices(){
                 const isLegendaryOr600 = (c.family === "準伝説" || c.family === "禁止級" || c.family === "幻" || c.family === "600族");
                 return isAllowedByFilter && isLegendaryOr600;
             });
-            noticeTexts.push("👑 最終回：伝説・600族 確定出現！");
+            noticeTexts.push("👑 6回目：伝説・600族 確定出現！");
         }
     } else {
         currentPool = currentPool.filter(c => {
@@ -698,7 +702,7 @@ function showChoices(){
     }
 
     if (activeRules.includes("starter30x") && round === 1) {
-        noticeTexts.push("🔥 1体目：御三家の出現率30倍！ 🔥");
+        noticeTexts.push("🏫 1体目：御三家の出現率30倍！");
     }
 
     if (noticeTexts.length > 0) {
@@ -730,8 +734,8 @@ function showChoices(){
         let totalWeight = pool.reduce((sum, item) => sum + item.weight, 0);
         if(totalWeight <= 0) break;
 
-        const rand = seededRandom(seed);
-        seed = rand.seed;
+        const rand = seededRandom(currentSeed);
+        currentSeed = rand.seed;
         
         let target = rand.value * totalWeight;
         let currentSum = 0;
