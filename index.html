@@ -654,7 +654,7 @@ function startGame(){
     if(name === ""){ name = "名前未入力"; }
     const today = new Intl.DateTimeFormat("sv-SE", { timeZone: "Asia/Tokyo" }).format(new Date());
     
-    currentSeed = stringToSeed(name + today + candidateCount + activeRules.join(","));
+    currentSeed = stringToSeed(name + today + candidateCount + allowedFamiliesGlobal.join(",") + activeRules.join(","));
 
     document.getElementById("startArea").style.display = "none";
     document.getElementById("candidateArea").style.display = "none";
