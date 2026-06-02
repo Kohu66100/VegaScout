@@ -960,6 +960,11 @@ function resetToStart(){
     document.getElementById("result").innerHTML = "";
     document.getElementById("seed").innerHTML = "";
     document.getElementById("round").innerHTML = "";
+
+    window.scrollTo({
+        top: 0,
+        behavior: "auto"
+    });
 }
 
 function updateSelectedList(){
