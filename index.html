@@ -191,8 +191,29 @@ select {
 }
 
 #choices .chara-card:hover button {
-    background-color: #2dbb68;
+    background-color: #2980b9;
+    box-shadow: 0 3px 0 #1f618d;
     transform: scale(1.03);
+}
+
+.chara-card button {
+    width: 100%;
+    background-color: #34495e;
+    color: white;
+    border: none;
+    padding: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 6px;
+    cursor: pointer;
+    box-shadow: 0 3px 0 #2c3e50;
+    margin-bottom: 10px;
+    transition: all 0.1s;
+}
+
+#choices .chara-card button:active {
+    transform: translateY(3px);
+    box-shadow: 0 0px 0 #2c3e50;
 }
 
 .chara-img {
@@ -243,25 +264,6 @@ select {
 .type-はがね { background-color: #5a8ea1; }
 .type-ノーマル { background-color: #9099a1; }
 .type-unknown { background-color: #b7b7b7; }
-
-.chara-card button {
-    width: 100%;
-    background-color: #2ecc71;
-    color: white;
-    border: none;
-    padding: 10px;
-    font-size: 16px;
-    font-weight: bold;
-    border-radius: 6px;
-    cursor: pointer;
-    box-shadow: 0 3px 0 #7aca9c;
-    margin-bottom: 10px;
-    transition: all 0.1s;
-}
-#choices .chara-card button:active {
-    transform: translateY(3px);
-    box-shadow: 0 0px 0 #27ae60;
-}
 
 /* リザルト用ネームバッジ */
 .chara-name-tag {
