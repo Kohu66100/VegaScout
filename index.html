@@ -103,9 +103,8 @@ select {
     border: 2px solid #ddd;
 }
 
-/* アクションボタン（はじめる・コピー） */
-#startButton, #copyButton {
-    background-color: #3498db;
+/* アクションボタン（はじめる・コピー・やりなおす） */
+#startButton, #copyButton, #retryButton {
     color: white;
     border: none;
     padding: 12px 28px;
@@ -113,13 +112,36 @@ select {
     font-weight: bold;
     border-radius: 6px;
     cursor: pointer;
-    box-shadow: 0 4px 0 #2980b9;
     transition: all 0.1s ease;
     margin: 10px auto;
 }
-#startButton:active, #copyButton:active {
+
+#startButton {
+    background-color: #3498db;
+    box-shadow: 0 4px 0 #2980b9;
+}
+#startButton:active {
     transform: translateY(4px);
     box-shadow: 0 0px 0 #2980b9;
+}
+
+#copyButton {
+    background-color: #3498db;
+    box-shadow: 0 4px 0 #2980b9;
+}
+#copyButton:active {
+    transform: translateY(4px);
+    box-shadow: 0 0px 0 #2980b9;
+}
+
+#retryButton {
+    background-color: #e67e22;
+    box-shadow: 0 4px 0 #d35400;
+    display: block; /* ボタン同士がくっつかないようブロック化 */
+}
+#retryButton:active {
+    transform: translateY(4px);
+    box-shadow: 0 0px 0 #d35400;
 }
 
 /* 選択肢（カードレイアウト） */
@@ -304,13 +326,14 @@ select {
     margin: 10px 0;
     min-height: 54px;
     line-height: 1.5;
+    display: none;
     visibility: hidden;
 }
 </style>
 </head>
 <body>
 
-<h1>ベガスカウト ver0.1</h1>
+<h1>ベガスカウト ver0.2</h1>
 
 <div id="startArea">
     <input type="text" id="username" placeholder="名前を入力">
@@ -337,7 +360,8 @@ select {
     <div class="option-group">
         <label class="option-label"><input type="checkbox" name="specialRules" value="starter30x">1体目は御三家確率30倍</label>
         <label class="option-label"><input type="checkbox" name="specialRules" value="legend6th">伝説/600族は6体目にだけ確定出現</label>
-        <label class="option-label"><input type="checkbox" name="specialRules" value="VegaOriginal">オリジナルキャラのみ登場</label>
+        <label class="option-label"><input type="checkbox" name="specialRules" value="vegaOriginal">オリジナルキャラのみ登場</label>
+        <label class="option-label"><input type="checkbox" name="specialRules" value="typeUnique">タイプ重複禁止</label>
     </div>
 </div>
 
@@ -357,9 +381,9 @@ select {
 
 <p id="seed"></p>
 <p id="round"></p>
-<p id="boostNotice"></p>
 
 <div id="choices"></div>
+<p id="boostNotice"></p>
 
 <div id="selectedList"></div>
 <div id="resultDisplay"></div>
@@ -386,7 +410,7 @@ select {
     <p>バンギラス/メタグロス/ガブリアス/ドラドーン</p>
 
     <p>◆準伝説</p>
-    <p>フリーザー/サンダー/ファイヤー/ライラプス/ガニメデ/ネメア/ロイツァー/ガタノア/ヒードラン/ラティアス/ラティオス</p>
+    <p>フリーザー/サンダー/ファイヤー/ライコウ/エンテイ/スイクン/ライラプス/ガニメデ/ネメア/ロイツァー/ガタノア/ヒードラン/ラティアス/ラティオス</p>
 
     <p>◆幻</p>
     <p>ダークライ/ミュウ/マナフィ/オルディナ</p>
@@ -627,7 +651,7 @@ function startGame(){
     candidateCount = Number(document.getElementById("candidateCount").value);
 
     let name = document.getElementById("username").value;
-    if(name === ""){ name = "ベガ"; }
+    if(name === ""){ name = "名前未入力"; }
     const today = new Intl.DateTimeFormat("sv-SE", { timeZone: "Asia/Tokyo" }).format(new Date());
     
     currentSeed = stringToSeed(name + today + candidateCount + activeRules.join(","));
@@ -637,6 +661,12 @@ function startGame(){
     document.getElementById("filterArea").style.display = "none";
     document.getElementById("optionArea").style.display = "none";
     document.getElementById("selectedList").style.display = "block";
+    document.getElementById("boostNotice").style.display = "block";
+    
+    // リザルト表示をリセットしておく
+    document.getElementById("resultDisplay").style.display = "grid";
+    document.getElementById("resultDisplay").innerHTML = "";
+    document.getElementById("result").innerHTML = "";
 
     updateSelectedList();
     showChoices();
@@ -658,7 +688,7 @@ function parseCSV(csv) {
 
 function showChoices(){
     
-    let name = document.getElementById("username").value || "ベガ";
+    let name = document.getElementById("username").value || "名前未入力";
     const today = new Intl.DateTimeFormat("sv-SE", { timeZone: "Asia/Tokyo" }).format(new Date());
 
     const boostNotice = document.getElementById("boostNotice");
@@ -666,6 +696,24 @@ function showChoices(){
 
     let currentPool = remainingCharacters;
     let noticeTexts = [];
+
+    // すでに獲得しているポケモンの全タイプ（空白除く）をセットとして抽出
+    if (activeRules.includes("typeUnique")) {
+        const selectedTypes = new Set();
+        selectedCharacters.forEach(c => {
+            if (c.type1 && c.type1.trim() !== "") selectedTypes.add(c.type1.trim());
+            if (c.type2 && c.type2.trim() !== "") selectedTypes.add(c.type2.trim());
+        });
+        
+        // 獲得済みポケモンのタイプを1つでも持っていたらプールから除外
+        if (selectedTypes.size > 0) {
+            currentPool = currentPool.filter(c => {
+                const hasType1 = c.type1 && selectedTypes.has(c.type1.trim());
+                const hasType2 = c.type2 && selectedTypes.has(c.type2.trim());
+                return !hasType1 && !hasType2;
+            });
+        }
+    }
 
     if (activeRules.includes("legend6th")) {
         if (round <= 5) {
@@ -675,7 +723,7 @@ function showChoices(){
                 const isNotLegendaryOr600 = (c.family !== "準伝説" && c.family !== "禁止級" && c.family !== "幻" && c.family !== "600族");
                 return isAllowedByFilter && isNotLegendaryOr600;
             });
-            noticeTexts.push("🐇 1〜5回目：伝説・600族 出現なし");
+            noticeTexts.push("<span style='color: #333;'>🐇 1〜5回目：伝説・600族 出現なし</span>");
         } else if (round === 6) {
             currentPool = currentPool.filter(c => {
                 const familyKey = (c.family === "") ? "一般" : c.family;
@@ -692,12 +740,12 @@ function showChoices(){
         });
     }
     //ベガオリジナル
-    if (activeRules.includes("VegaOriginal")) {
+    if (activeRules.includes("vegaOriginal")) {
         currentPool = currentPool.filter(c => {
             const familyKey = (c.family === "") ? "一般" : c.family;
             const isAllowedByFilter = allowedFamiliesGlobal.includes(familyKey);
-            const isVegaOriginal = (c.family2 === "ベガ");
-            return isAllowedByFilter && isVegaOriginal;
+            const isvegaOriginal = (c.family2 === "ベガ");
+            return isAllowedByFilter && isvegaOriginal;
         });
     }
 
@@ -707,9 +755,9 @@ function showChoices(){
 
     if (noticeTexts.length > 0) {
         boostNotice.innerHTML = noticeTexts.join("<br>");
-        boostNotice.style.visibility = "visible"; // テキストがある場合のみ可視化
+        boostNotice.style.visibility = "visible";
     } else {
-        boostNotice.innerHTML = "&nbsp;"; // 高さを保つための空白を維持
+        boostNotice.innerHTML = "&nbsp;";
     }
 
     if (currentPool.length === 0) {
@@ -755,7 +803,8 @@ function showChoices(){
     let ruleNames = [];
     if (activeRules.includes("starter30x")) ruleNames.push("御三家30倍");
     if (activeRules.includes("legend6th")) ruleNames.push("伝説6体目確定");
-    if (activeRules.includes("VegaOriginal")) ruleNames.push("ベガオリジナル");
+    if (activeRules.includes("vegaOriginal")) ruleNames.push("ベガオリジナル");
+    if (activeRules.includes("typeUnique")) ruleNames.push("タイプ重複禁止");
     let ruleText = ruleNames.length > 0 ? ruleNames.join("＋") : "なし";
     let filterText = allowedFamiliesGlobal.length > 0 ? allowedFamiliesGlobal.join("、") : "なし";
 
@@ -764,9 +813,12 @@ function showChoices(){
         フィルター：${filterText}<br>
         特殊ルール：${ruleText}
     `;
+    
+    document.getElementById("round").style.display = "block";
     document.getElementById("round").textContent = `${round} / 6回目`;
 
     const choicesDiv = document.getElementById("choices");
+    choicesDiv.style.display = "flex";
     choicesDiv.innerHTML = "";
 
     chosenCandidates.forEach(charData => {
@@ -879,9 +931,11 @@ function showResult(){
     });
 
     document.getElementById("result").innerHTML = `
-        <button id="copyButton">結果をテキストでコピー</button>
+        <button id=\"copyButton\">結果をテキストでコピー</button>
+        <button id=\"retryButton\">同じ設定でもう一度やりなおす</button>
     `;
     document.getElementById("copyButton").onclick = copyResult;
+    document.getElementById("retryButton").onclick = resetToStart; // クリックで初期画面へ戻る関数を実行
 }
 
 function copyResult(){
@@ -889,6 +943,23 @@ function copyResult(){
     navigator.clipboard.writeText(text).then(() => {
         alert("チーム内容をコピーしました！");
     });
+}
+
+function resetToStart(){
+
+    // 非表示になっていた設定エリアや開始エリアを元に戻す
+    document.getElementById("startArea").style.display = "block";
+    document.getElementById("candidateArea").style.display = "block";
+    document.getElementById("filterArea").style.display = "block";
+    document.getElementById("optionArea").style.display = "block";
+
+    // ドラフト中・結果画面の表示を非表示にする
+    document.getElementById("selectedList").style.display = "none";
+    document.getElementById("resultDisplay").style.display = "none";
+    document.getElementById("boostNotice").style.display = "none";
+    document.getElementById("result").innerHTML = "";
+    document.getElementById("seed").innerHTML = "";
+    document.getElementById("round").innerHTML = "";
 }
 
 function updateSelectedList(){
