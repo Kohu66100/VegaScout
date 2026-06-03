@@ -22,7 +22,7 @@ h1 {
 }
 
 /* フォーム・設定エリア */
-#startArea, #candidateArea, #filterArea, #optionArea {
+#startArea, #scoutOptionArea, #filterArea, #optionArea {
     background: white;
     padding: 20px;
     border-radius: 10px;
@@ -36,8 +36,8 @@ h1 {
     margin: 0 auto 20px auto;
 }
 
-#candidateArea {
-    text-align: center;
+#scoutOptionArea {
+    text-align: right;
     max-width: 300px;
     margin: 0 auto 20px auto;
 }
@@ -161,9 +161,9 @@ select {
 
 #resultDisplay {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(6, 1fr);
     gap: 15px;
-    max-width: 460px;
+    max-width: 900px;
     margin: 15px auto 5px auto;
     padding: 10px;
 }
@@ -308,16 +308,41 @@ select {
     color: #7f8c8d;
 }
 
-#filterGuide {
+#description {
+    margin-top: 5px;
     border-top: 2px solid #dee2e6;
     text-align: left;
 }
 
-#description {
-    margin-top: 5px;
-    padding: 20px;
-    border-top: 2px solid #dee2e6;
+#filterGuide {
     text-align: left;
+    max-width: 900px;
+    margin: 15px auto;
+    font-size: 16px;
+    background: #f9f9f9;
+    padding: 12px;
+    border-radius: 6px;
+    border: 1px solid #e1e8ed;
+    transition: background-color 0.2s;
+}
+
+#filterGuide:hover {
+    background: #f0f4f8;
+}
+
+#filterGuide summary {
+    font-size: 18px;
+    font-weight: bold;
+    color: #2c3e50;
+    outline: none;
+    user-select: none;
+    cursor: pointer;
+}
+
+#filterGuide .guide-content {
+    margin-top: 10px;
+    line-height: 1.6;
+    cursor: default;
 }
 
 /* 特殊ラウンドのアナウンス */
@@ -335,7 +360,7 @@ select {
 </head>
 <body>
 
-<h1>ベガスカウト ver0.2</h1>
+<h1>ベガスカウト ver0.3</h1>
 
 <div id="startArea">
     <input type="text" id="username" placeholder="名前を入力">
@@ -361,13 +386,13 @@ select {
     <h3>特殊ルール</h3>
     <div class="option-group">
         <label class="option-label"><input type="checkbox" name="specialRules" value="starter30x">1体目は御三家確率30倍</label>
-        <label class="option-label"><input type="checkbox" name="specialRules" value="legend6th">伝説/600族は6体目にだけ確定出現</label>
+        <label class="option-label"><input type="checkbox" name="specialRules" value="legend6th">伝説/600族は最後にだけ確定出現</label>
         <label class="option-label"><input type="checkbox" name="specialRules" value="vegaOriginal">オリジナルキャラのみ登場</label>
         <label class="option-label"><input type="checkbox" name="specialRules" value="typeUnique">タイプ重複禁止</label>
     </div>
 </div>
 
-<div id="candidateArea">
+<div id="scoutOptionArea">
     <label>一度に提示する候補数：</label>
     <select id="candidateCount">
         <option value="3">3種類</option>
@@ -378,6 +403,20 @@ select {
         <option value="8">8種類</option>
         <option value="9">9種類</option>
         <option value="10">10種類</option>
+    </select>
+    <div class="break"></div>
+    <label>スカウト回数：</label>
+    <select id="scoutCount">
+        <option value="3">3回</option>
+        <option value="4">4回</option>
+        <option value="5">5回</option>
+        <option value="6" selected>6回</option>
+        <option value="7">7回</option>
+        <option value="8">8回</option>
+        <option value="9">9回</option>
+        <option value="10">10回</option>
+        <option value="11">11回</option>
+        <option value="12">12回</option>
     </select>
 </div>
 
@@ -399,9 +438,9 @@ select {
     <p>名前と日付、各種設定によって抽選内容が固定されます。</p>
 </div>
 
-<div id="filterGuide">
-    <h2>フィルター詳細</h2>
-    
+<details id="filterGuide">
+    <summary><strong>フィルター詳細</strong></summary>
+    <div class="guideContent">    
     <p>◆Tier1</p>
     <p>カモナイツ/ラブリン/ドルマイン</p>
     
@@ -412,7 +451,8 @@ select {
     <p>バンギラス/メタグロス/ガブリアス/ドラドーン</p>
 
     <p>◆準伝説</p>
-    <p>フリーザー/サンダー/ファイヤー/ライコウ/エンテイ/スイクン/ライラプス/ガニメデ/ネメア/ロイツァー/ガタノア/ヒードラン/ラティアス/ラティオス</p>
+    <p>フリーザー/サンダー/ファイヤー/ライコウ/エンテイ/スイクン/ライラプス/ガニメデ/ネメア</p>
+    <p>ロイツァー/ガタノア/ヒードラン/ラティアス/ラティオス</p>
 
     <p>◆幻</p>
     <p>ダークライ/ミュウ/マナフィ/オルディナ</p>
@@ -422,7 +462,8 @@ select {
 
     <p>◆除外</p>
     <p>メタモン/アンノーン/ラクチャン/ヌケニン</p>
-</div>
+    </div>
+</details>
 
 <script>
 const csvData =`name,type1,type2,family,family2,family3,link
@@ -635,6 +676,7 @@ let remainingCharacters = [];
 let selectedCharacters = [];
 let round = 1;
 let candidateCount = 5;
+let scoutCount = 6;
 let activeRules = [];
 let allowedFamiliesGlobal = [];
 let currentSeed = 0;
@@ -651,15 +693,16 @@ function startGame(){
     selectedCharacters = [];
     round = 1;
     candidateCount = Number(document.getElementById("candidateCount").value);
+    scoutCount = Number(document.getElementById("scoutCount").value);
 
     let name = document.getElementById("username").value;
     if(name === ""){ name = "名前未入力"; }
     const today = new Intl.DateTimeFormat("sv-SE", { timeZone: "Asia/Tokyo" }).format(new Date());
     
-    currentSeed = stringToSeed(name + today + candidateCount + allowedFamiliesGlobal.join(",") + activeRules.join(","));
+    currentSeed = stringToSeed(name + today + candidateCount + scoutCount + allowedFamiliesGlobal.join(",") + activeRules.join(","));
 
     document.getElementById("startArea").style.display = "none";
-    document.getElementById("candidateArea").style.display = "none";
+    document.getElementById("scoutOptionArea").style.display = "none";
     document.getElementById("filterArea").style.display = "none";
     document.getElementById("optionArea").style.display = "none";
     document.getElementById("selectedList").style.display = "block";
@@ -693,6 +736,13 @@ function showChoices(){
     let name = document.getElementById("username").value || "名前未入力";
     const today = new Intl.DateTimeFormat("sv-SE", { timeZone: "Asia/Tokyo" }).format(new Date());
 
+    if (selectedCharacters.length > 0) {
+        // 直前に選んだキャラクターの名前
+        const lastChosenName = selectedCharacters[selectedCharacters.length - 1].name;
+        // 現在のシード値に、文字列とラウンド数の要素を掛け合わせてブレンドする
+        currentSeed = (currentSeed + stringToSeed(lastChosenName + round)) >>> 0;
+    }
+
     const boostNotice = document.getElementById("boostNotice");
     boostNotice.style.visibility = "hidden";
 
@@ -718,22 +768,22 @@ function showChoices(){
     }
 
     if (activeRules.includes("legend6th")) {
-        if (round <= 5) {
+        if (round < scoutCount) {
             currentPool = currentPool.filter(c => {
                 const familyKey = (c.family === "") ? "一般" : c.family;
                 const isAllowedByFilter = allowedFamiliesGlobal.includes(familyKey);
                 const isNotLegendaryOr600 = (c.family !== "準伝説" && c.family !== "禁止級" && c.family !== "幻" && c.family !== "600族");
                 return isAllowedByFilter && isNotLegendaryOr600;
             });
-            noticeTexts.push("<span style='color: #333;'>🐇 1〜5回目：伝説・600族 出現なし</span>");
-        } else if (round === 6) {
+            noticeTexts.push("<span style='color: #333;'>🐇 伝説・600族 出現なし</span>");
+        } else if (round === scoutCount) {
             currentPool = currentPool.filter(c => {
                 const familyKey = (c.family === "") ? "一般" : c.family;
                 const isAllowedByFilter = allowedFamiliesGlobal.includes(familyKey);
                 const isLegendaryOr600 = (c.family === "準伝説" || c.family === "禁止級" || c.family === "幻" || c.family === "600族");
                 return isAllowedByFilter && isLegendaryOr600;
             });
-            noticeTexts.push("👑 6回目：伝説・600族 確定出現！");
+            noticeTexts.push("👑 最終回：伝説・600族 確定出現！");
         }
     } else {
         currentPool = currentPool.filter(c => {
@@ -804,7 +854,7 @@ function showChoices(){
 
     let ruleNames = [];
     if (activeRules.includes("starter30x")) ruleNames.push("御三家30倍");
-    if (activeRules.includes("legend6th")) ruleNames.push("伝説6体目確定");
+    if (activeRules.includes("legend6th")) ruleNames.push("伝説最後確定");
     if (activeRules.includes("vegaOriginal")) ruleNames.push("ベガオリジナル");
     if (activeRules.includes("typeUnique")) ruleNames.push("タイプ重複禁止");
     let ruleText = ruleNames.length > 0 ? ruleNames.join("＋") : "なし";
@@ -817,7 +867,7 @@ function showChoices(){
     `;
     
     document.getElementById("round").style.display = "block";
-    document.getElementById("round").textContent = `${round} / 6回目`;
+    document.getElementById("round").textContent = `${round} / ${scoutCount}回目`;
 
     const choicesDiv = document.getElementById("choices");
     choicesDiv.style.display = "flex";
@@ -870,7 +920,7 @@ function selectCharacter(characterObj){
     remainingCharacters = remainingCharacters.filter(c => c.name !== characterObj.name);
     updateSelectedList();
 
-    if(round >= 6){
+    if(round >= scoutCount){
         showResult();
         return;
     }
@@ -951,7 +1001,7 @@ function resetToStart(){
 
     // 非表示になっていた設定エリアや開始エリアを元に戻す
     document.getElementById("startArea").style.display = "block";
-    document.getElementById("candidateArea").style.display = "block";
+    document.getElementById("scoutOptionArea").style.display = "block";
     document.getElementById("filterArea").style.display = "block";
     document.getElementById("optionArea").style.display = "block";
 
