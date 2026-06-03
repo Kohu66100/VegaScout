@@ -22,7 +22,7 @@ h1 {
 }
 
 /* フォーム・設定エリア */
-#startArea, #scoutOptionArea, #filterArea, #optionArea {
+#startArea, #patchArea, #scoutOptionArea, #filterArea, #generationArea, #optionArea {
     background: white;
     padding: 20px;
     border-radius: 10px;
@@ -30,9 +30,15 @@ h1 {
     margin-bottom: 20px;
 }
 
-#filterArea, #optionArea {
+#filterArea, #generationArea, #optionArea {
     text-align: center;
     max-width: 600px;
+    margin: 0 auto 20px auto;
+}
+
+#patchArea {
+    text-align: center;
+    max-width: 400px;
     margin: 0 auto 20px auto;
 }
 
@@ -42,7 +48,7 @@ h1 {
     margin: 0 auto 20px auto;
 }
 
-#filterArea h3, #optionArea h3 {
+#filterArea h3, #generationArea h3, #optionArea h3, #patchArea h3 {
     margin-top: 0;
     margin-bottom: 15px;
     color: #2c3e50;
@@ -52,6 +58,15 @@ h1 {
 }
 
 .filter-group {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    max-width: 450px;
+    margin: 0 auto;
+    gap: 15px;
+}
+
+.generation-group {
     display: flex;
     flex-wrap: wrap;
     justify-content: flex-start;
@@ -169,6 +184,7 @@ select {
 }
 
 .chara-card {
+    position: relative;
     border: 2px solid transparent; 
     background: white;
     border-radius: 12px;
@@ -216,13 +232,35 @@ select {
     box-shadow: 0 0px 0 #2c3e50;
 }
 
+/* 画像エリアをまとめるコンテナ（ここを基準にアイコンを配置） */
+.img-container {
+    position: relative;
+    width: 110px;
+    height: 110px;
+    margin-bottom: 8px;
+}
+
 .chara-img {
     width: 110px;
     height: 110px;
     object-fit: contain;
     margin-bottom: 8px;
-    background-color: #f9f9f9;
+    background-color: transparent;
     border-radius: 8px;
+    position: relative;
+    z-index: 2;
+}
+
+/*スタイルアイコン用 */
+.style-icon {
+    position: absolute;
+    bottom: -16px;
+    left: -16px;
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+    z-index: 1;
+    opacity: 0.75;
 }
 
 .type-container {
@@ -243,6 +281,7 @@ select {
     border-radius: 4px;
     text-shadow: 1px 1px 1px rgba(0,0,0,0.3);
     box-shadow: inset 0 -1px 2px rgba(0,0,0,0.2);
+    z-index: 3;
 }
 
 /* タイプカラー定義 */
@@ -262,6 +301,7 @@ select {
 .type-ドラゴン { background-color: #0a6dc4; }
 .type-あく { background-color: #5a5366; }
 .type-はがね { background-color: #5a8ea1; }
+.type-フェアリー { background-color: #fa90ba; }
 .type-ノーマル { background-color: #9099a1; }
 .type-unknown { background-color: #b7b7b7; }
 
@@ -311,6 +351,7 @@ select {
 #description {
     margin-top: 5px;
     border-top: 2px solid #dee2e6;
+    border-bottom: 2px solid #dee2e6;
     text-align: left;
 }
 
@@ -367,18 +408,47 @@ select {
     <button id="startButton">はじめる</button>
 </div>
 
+<div id="patchArea">
+    <h3>作品選択</h3>
+    <div class="patch-group">
+        <label class="patch-label"><input type="radio" name="patchFilter" value="ベガ" checked>ベガ</label>
+        <label class="patch-label"><input type="radio" name="patchFilter" value="プロデネ">プロデネ</label>
+    </div>
+</div>
+
 <div id="filterArea">
     <h3>出現フィルター</h3>
     <div class="filter-group">
-        <label class="filter-label"><input type="checkbox" name="allowedFamily" value="一般" checked>一般</label>
-        <label class="filter-label"><input type="checkbox" name="allowedFamily" value="Tier1">Tier1</label>
-        <label class="filter-label"><input type="checkbox" name="allowedFamily" value="封殺">封殺</label>
+        <label class="filter-label"><input type="checkbox" name="allowedFilter" value="一般" checked>一般</label>
+        <label class="filter-label"><input type="checkbox" name="allowedFilter" value="Tier1">Tier1</label>
+        <label class="filter-label"><input type="checkbox" name="allowedFilter" value="封殺">封殺</label>
         <div class="break"></div>
-        <label class="filter-label"><input type="checkbox" name="allowedFamily" value="600族" checked>600族</label>
-        <label class="filter-label"><input type="checkbox" name="allowedFamily" value="準伝説" checked>準伝説</label>
-        <label class="filter-label"><input type="checkbox" name="allowedFamily" value="幻" checked>幻</label>
-        <label class="filter-label"><input type="checkbox" name="allowedFamily" value="禁止級">禁止級</label>
-        <label class="filter-label"><input type="checkbox" name="allowedFamily" value="除外">除外</label>
+        <label class="filter-label"><input type="checkbox" name="allowedFilter" value="600族" checked>600族</label>
+        <label class="filter-label"><input type="checkbox" name="allowedFilter" value="準伝説" checked>準伝説</label>
+        <label class="filter-label"><input type="checkbox" name="allowedFilter" value="幻" checked>幻</label>
+        <label class="filter-label"><input type="checkbox" name="allowedFilter" value="禁止級">禁止級</label>
+        <label class="filter-label"><input type="checkbox" name="allowedFilter" value="除外">除外</label>
+        <button type="button" id="selectAllFilters" style="padding: 4px 10px; font-size: 12px; font-weight: bold; background-color: #34495e; color: white; border: none; border-radius: 4px; cursor: pointer;">全てチェック</button>
+        <button type="button" id="cancelAllFilters" style="padding: 4px 10px; font-size: 12px; font-weight: bold; background-color: #34495e; color: white; border: none; border-radius: 4px; cursor: pointer;">全て外す</button>
+    </div>
+</div>
+
+<div id="generationArea">
+    <h3>世代</h3>
+    <div class="generation-group">
+        <label class="generation-label"><input type="checkbox" name="allowedGeneration" value="初代" checked>初代</label>
+        <label class="generation-label"><input type="checkbox" name="allowedGeneration" value="金銀" checked>金銀</label>
+        <label class="generation-label"><input type="checkbox" name="allowedGeneration" value="RS" checked>RS</label>
+        <label class="generation-label"><input type="checkbox" name="allowedGeneration" value="DP" checked>DP</label>
+        <label class="generation-label"><input type="checkbox" name="allowedGeneration" value="BW" checked>BW</label>
+        <label class="generation-label"><input type="checkbox" name="allowedGeneration" value="XY以降" checked>XY以降</label>
+        <div class="break"></div>
+        <label class="generation-label"><input type="checkbox" name="allowedGeneration" value="AS" checked>AS</label>
+        <label class="generation-label"><input type="checkbox" name="allowedGeneration" value="ベガ" checked>ベガ</label>
+        <label class="generation-label"><input type="checkbox" name="allowedGeneration" value="PD" checked>PD</label>
+        <div class="break"></div>
+        <button type="button" id="selectAllGeneration" style="padding: 4px 10px; font-size: 12px; font-weight: bold; background-color: #34495e; color: white; border: none; border-radius: 4px; cursor: pointer;">全てチェック</button>
+        <button type="button" id="cancelAllGeneration" style="padding: 4px 10px; font-size: 12px; font-weight: bold; background-color: #34495e; color: white; border: none; border-radius: 4px; cursor: pointer;">全て外す</button>
     </div>
 </div>
 
@@ -387,8 +457,8 @@ select {
     <div class="option-group">
         <label class="option-label"><input type="checkbox" name="specialRules" value="starter30x">1体目は御三家確率30倍</label>
         <label class="option-label"><input type="checkbox" name="specialRules" value="legend6th">伝説/600族は最後にだけ確定出現</label>
-        <label class="option-label"><input type="checkbox" name="specialRules" value="vegaOriginal">オリジナルキャラのみ登場</label>
         <label class="option-label"><input type="checkbox" name="specialRules" value="typeUnique">タイプ重複禁止</label>
+        <label class="option-label"><input type="checkbox" name="specialRules" value="Eviolite">しんかのきせき追加</label>
     </div>
 </div>
 
@@ -432,14 +502,12 @@ select {
 
 <div id="description">
     <h2>説明</h2>
-    <p>ポケモンがランダムに提示されます。</p>
-    <p>6回選択してスカウトチームを作成しましょう。</p>
-    <br>
+    <p>ランダムなキャラクターをスカウトしてチームを編成しましょう。</p>
     <p>名前と日付、各種設定によって抽選内容が固定されます。</p>
 </div>
 
 <details id="filterGuide">
-    <summary><strong>フィルター詳細</strong></summary>
+    <summary><strong>フィルター詳細（ベガ）</strong></summary>
     <div class="guideContent">    
     <p>◆Tier1</p>
     <p>カモナイツ/ラブリン/ドルマイン</p>
@@ -462,232 +530,92 @@ select {
 
     <p>◆除外</p>
     <p>メタモン/アンノーン/ラクチャン/ヌケニン</p>
+</details>
+
+<details id="filterGuide">
+    <summary><strong>フィルター詳細（プロデネ）</strong></summary>
+    <div class="guideContent">
+    <p>◆Tier1</p>
+    <p>未定</p>
+    
+    <p>◆封殺</p>
+    <p>未定</p>
+    
+    <p>◆600族</p>
+    <p>デモリガン/カソーダン</p>
+
+    <p>◆準伝説/幻/禁止級</p>
+    <p>未定</p>
+
+    <p>◆除外</p>
+    <p>メタモン/ラクチャン</p>
+
+    <p>◆しんかのきせき</p>
+    <p>アスイーツ/アブソル/キリンリキ/ザングース/ハブネーク/エアームド/トロピウス/オタクン/ネラー/パチリス/ルナビット/ウソギー/オオムジナ/ペラップ/レディアン/ドククラゲ/マルマイン/グラエナ/ヤミラミ/クチート/カイロス/アーボック/マタドガス/マグカルゴ/ネオラント/サンドパン/マスキッパ/ゴキブロス/ラブカス/スリーパー/チリーン</p>
+    <p>きせきキャラは1体スカウトすると以降は出現しなくなります。</p>
     </div>
 </details>
 
 <script>
-const csvData =`name,type1,type2,family,family2,family3,link
-リーテイル,くさ,ひこう,一般,ベガ,御三家,https://w.atwiki.jp/altair1/pages/73.html
-ファマイン,ほのお,はがね,一般,ベガ,御三家,https://w.atwiki.jp/altair1/pages/76.html
-タテボーシ,みず,どく,一般,ベガ,御三家,https://w.atwiki.jp/altair1/pages/167.html
-オオスバメ,ノーマル,ひこう,一般,本家,,https://w.atwiki.jp/altair1/pages/169.html
-ルカリオ,かくとう,はがね,一般,本家,,https://w.atwiki.jp/altair1/pages/171.html
-ヘルガー,あく,ほのお,一般,本家,,https://w.atwiki.jp/altair1/pages/202.html
-ダグトリオ,じめん,,一般,本家,,https://w.atwiki.jp/altair1/pages/204.html
-トゲキッス,ノーマル,ひこう,一般,本家,,https://w.atwiki.jp/altair1/pages/207.html
-フローリア,こおり,,一般,ベガ,,https://w.atwiki.jp/altair1/pages/210.html
-ライチュウ,でんき,,一般,本家,,https://w.atwiki.jp/altair1/pages/214.html
-ゴリチュウ,でんき,かくとう,一般,ベガ,,https://w.atwiki.jp/altair1/pages/213.html
-エアームド,はがね,ひこう,一般,本家,,https://w.atwiki.jp/altair1/pages/215.html
-ニドクイン,どく,じめん,一般,本家,,https://w.atwiki.jp/altair1/pages/218.html
-ニドキング,どく,じめん,一般,本家,,https://w.atwiki.jp/altair1/pages/221.html
-フローゼル,みず,,一般,本家,,https://w.atwiki.jp/altair1/pages/223.html
-セラーナ,くさ,,一般,ベガ,,https://w.atwiki.jp/altair1/pages/225.html
-フォレトス,むし,はがね,一般,本家,,https://w.atwiki.jp/altair1/pages/227.html
-パルシェン,みず,こおり,一般,本家,,https://w.atwiki.jp/altair1/pages/229.html
-ペガーン,エスパー,ひこう,一般,ベガ,,https://w.atwiki.jp/altair1/pages/232.html
-ユニサス,エスパー,はがね,一般,ベガ,,https://w.atwiki.jp/altair1/pages/231.html
-サワムラー,かくとう,,一般,本家,,https://w.atwiki.jp/altair1/pages/234.html
-エビワラー,かくとう,,一般,本家,,https://w.atwiki.jp/altair1/pages/235.html
-カポエラー,かくとう,,一般,本家,,https://w.atwiki.jp/altair1/pages/236.html
-メタゲラス,はがね,じめん,一般,ベガ,,https://w.atwiki.jp/altair1/pages/77.html
-ディザソル,あく,,一般,ベガ,,https://w.atwiki.jp/altair1/pages/239.html
-フォリキー,ノーマル,エスパー,一般,ベガ,,https://w.atwiki.jp/altair1/pages/241.html
-ファントマ,ほのお,,一般,ベガ,,https://w.atwiki.jp/altair1/pages/243.html
-ジバコイル,でんき,はがね,一般,本家,,https://w.atwiki.jp/altair1/pages/246.html
-スターミー,みず,エスパー,一般,本家,,https://w.atwiki.jp/altair1/pages/248.html
-ゲンガー,ゴースト,どく,一般,本家,,https://w.atwiki.jp/altair1/pages/251.html
-ナッシー,くさ,エスパー,一般,本家,,https://w.atwiki.jp/altair1/pages/253.html
-ググズリー,ノーマル,かくとう,一般,ベガ,,https://w.atwiki.jp/altair1/pages/255.html
-ハンタマ,ゴースト,かくとう,一般,ベガ,,https://w.atwiki.jp/altair1/pages/256.html
-ドサイドン,じめん,いわ,一般,本家,,https://w.atwiki.jp/altair1/pages/259.html
-トロピウス,くさ,ひこう,一般,本家,,https://w.atwiki.jp/altair1/pages/260.html
-ポリゴンZ,ノーマル,,一般,本家,,https://w.atwiki.jp/altair1/pages/263.html
-トドゼルガ,こおり,みず,一般,本家,,https://w.atwiki.jp/altair1/pages/266.html
-マルマジロ,いわ,はがね,一般,ベガ,,https://w.atwiki.jp/altair1/pages/268.html
-リーフィス,くさ,みず,一般,ベガ,,https://w.atwiki.jp/altair1/pages/270.html
-ユキノオー,くさ,こおり,一般,本家,,https://w.atwiki.jp/altair1/pages/272.html
-ネクロシア,ゴースト,あく,一般,ベガ,,https://w.atwiki.jp/altair1/pages/274.html
-バフォット,はがね,あく,一般,ベガ,,https://w.atwiki.jp/altair1/pages/277.html
-ミルタンク,ノーマル,,一般,本家,,https://w.atwiki.jp/altair1/pages/278.html
-ツボツボ,むし,いわ,封殺,本家,,https://w.atwiki.jp/altair1/pages/279.html
-フィニクス,ほのお,ドラゴン,一般,ベガ,,https://w.atwiki.jp/altair1/pages/282.html
-コクジャク,エスパー,ひこう,一般,ベガ,,https://w.atwiki.jp/altair1/pages/284.html
-コーシャン,ほのお,あく,一般,ベガ,,https://w.atwiki.jp/altair1/pages/286.html
-ボルトック,でんき,,一般,ベガ,,https://w.atwiki.jp/altair1/pages/288.html
-テペトラー,みず,かくとう,一般,ベガ,,https://w.atwiki.jp/altair1/pages/290.html
-ロップル,ゴースト,エスパー,一般,ベガ,,https://w.atwiki.jp/altair1/pages/291.html
-ニートン,ゴースト,,一般,ベガ,,https://w.atwiki.jp/altair1/pages/294.html
-ヨルノズク,ノーマル,ひこう,一般,本家,,https://w.atwiki.jp/altair1/pages/296.html
-ハクタクン,エスパー,,一般,ベガ,,https://w.atwiki.jp/altair1/pages/297.html
-エレキブル,でんき,,一般,本家,,https://w.atwiki.jp/altair1/pages/300.html
-ブーバーン,ほのお,,一般,本家,,https://w.atwiki.jp/altair1/pages/303.html
-ガルーラ,ノーマル,,一般,本家,,https://w.atwiki.jp/altair1/pages/304.html
-ユレイドル,いわ,くさ,一般,本家,,https://w.atwiki.jp/altair1/pages/306.html
-マカドゥス,いわ,でんき,一般,ベガ,,https://w.atwiki.jp/altair1/pages/308.html
-プテラ,いわ,ひこう,一般,本家,,https://w.atwiki.jp/altair1/pages/309.html
-バンギラス,いわ,あく,600族,本家,,https://w.atwiki.jp/altair1/pages/312.html
-メタグロス,はがね,エスパー,600族,本家,,https://w.atwiki.jp/altair1/pages/315.html
-ガブリアス,ドラゴン,じめん,600族,本家,,https://w.atwiki.jp/altair1/pages/318.html
-ドラドーン,ドラゴン,ひこう,600族,ベガ,,https://w.atwiki.jp/altair1/pages/321.html
-フリーザー,こおり,ひこう,準伝説,本家,,https://w.atwiki.jp/altair1/pages/322.html
-サンダー,でんき,ひこう,準伝説,本家,,https://w.atwiki.jp/altair1/pages/323.html
-ファイヤー,ほのお,ひこう,準伝説,本家,,https://w.atwiki.jp/altair1/pages/324.html
-ライコウ,でんき,,準伝説,本家,,https://w.atwiki.jp/altair1/pages/325.html
-エンテイ,ほのお,,準伝説,本家,,https://w.atwiki.jp/altair1/pages/326.html
-スイクン,みず,,準伝説,本家,,https://w.atwiki.jp/altair1/pages/327.html
-ライラプス,じめん,,準伝説,ベガ,,https://w.atwiki.jp/altair1/pages/328.html
-ガニメデ,ひこう,,準伝説,ベガ,,https://w.atwiki.jp/altair1/pages/329.html
-ネメア,はがね,,準伝説,ベガ,,https://w.atwiki.jp/altair1/pages/330.html
-ディアルガ,はがね,ドラゴン,禁止級,本家,,https://w.atwiki.jp/altair1/pages/331.html
-パルキア,みず,ドラゴン,禁止級,本家,,https://w.atwiki.jp/altair1/pages/332.html
-ダークライ,あく,,幻,本家,,https://w.atwiki.jp/altair1/pages/333.html
-ルギア,エスパー,ひこう,禁止級,本家,,https://w.atwiki.jp/altair1/pages/334.html
-ホウオウ,ほのお,ひこう,禁止級,本家,,https://w.atwiki.jp/altair1/pages/335.html
-ミュウツー,エスパー,,禁止級,本家,,https://w.atwiki.jp/altair1/pages/336.html
-ミュウ,エスパー,,幻,本家,,https://w.atwiki.jp/altair1/pages/337.html
-フシギバナ,くさ,どく,一般,本家,御三家,https://w.atwiki.jp/altair1/pages/340.html
-リザードン,ほのお,ひこう,一般,本家,御三家,https://w.atwiki.jp/altair1/pages/343.html
-カメックス,みず,,一般,本家,御三家,https://w.atwiki.jp/altair1/pages/346.html
-バジリール,くさ,でんき,一般,ベガ,御三家,https://w.atwiki.jp/altair1/pages/349.html
-コマレオン,ほのお,じめん,一般,ベガ,御三家,https://w.atwiki.jp/altair1/pages/352.html
-バクソウオ,みず,ゴースト,一般,ベガ,御三家,https://w.atwiki.jp/altair1/pages/355.html
-チェキッド,あく,ノーマル,一般,ベガ,,https://w.atwiki.jp/altair1/pages/357.html
-チェキラス,あく,エスパー,一般,ベガ,,https://w.atwiki.jp/altair1/pages/358.html
-ララミンゴ,みず,ひこう,一般,ベガ,,https://w.atwiki.jp/altair1/pages/360.html
-パチリック,でんき,,一般,ベガ,,https://w.atwiki.jp/altair1/pages/362.html
-パンプッチ,くさ,ゴースト,一般,ベガ,,https://w.atwiki.jp/altair1/pages/364.html
-ルナバイン,エスパー,,一般,ベガ,,https://w.atwiki.jp/altair1/pages/366.html
-ウソドロ,あく,,一般,ベガ,,https://w.atwiki.jp/altair1/pages/394.html
-メタモン,ノーマル,,除外,本家,,https://w.atwiki.jp/altair1/pages/395.html
-レジュリア,こおり,エスパー,一般,ベガ,,https://w.atwiki.jp/altair1/pages/398.html
-ポコキング,ノーマル,,一般,ベガ,,https://w.atwiki.jp/altair1/pages/401.html
-アスイーツ,こおり,,一般,ベガ,,https://w.atwiki.jp/altair1/pages/402.html
-ユキタテハ,むし,こおり,一般,ベガ,,https://w.atwiki.jp/altair1/pages/404.html
-オオペラー,エスパー,ひこう,一般,ベガ,,https://w.atwiki.jp/altair1/pages/406.html
-オリバー,ノーマル,,一般,ベガ,,https://w.atwiki.jp/altair1/pages/407.html
-ランペルン,ノーマル,,一般,ベガ,,https://w.atwiki.jp/altair1/pages/408.html
-キーボン,ノーマル,,一般,ベガ,,https://w.atwiki.jp/altair1/pages/409.html
-レディバル,むし,かくとう,一般,ベガ,,https://w.atwiki.jp/altair1/pages/412.html
-アンノーン,エスパー,,除外,本家,,https://w.atwiki.jp/altair1/pages/413.html
-ケンタロス,ノーマル,,一般,本家,,https://w.atwiki.jp/altair1/pages/415.html
-プラネム,いわ,エスパー,一般,ベガ,,https://w.atwiki.jp/altair1/pages/419.html
-コモラゴン,どく,ドラゴン,一般,ベガ,,https://w.atwiki.jp/altair1/pages/421.html
-オクタン,みず,,一般,本家,,https://w.atwiki.jp/altair1/pages/423.html
-ヤミクラゲ,みず,あく,一般,ベガ,,https://w.atwiki.jp/altair1/pages/426.html
-オオイナリ,ほのお,エスパー,一般,ベガ,,https://w.atwiki.jp/altair1/pages/428.html
-ホムロソク,ほのお,ゴースト,一般,ベガ,,https://w.atwiki.jp/altair1/pages/430.html
-ガレキダマ,いわ,じめん,一般,ベガ,,https://w.atwiki.jp/altair1/pages/431.html
-ジバクン,ノーマル,ゴースト,禁止級,ベガ,,https://w.atwiki.jp/altair1/pages/432.html
-ワラガシラ,ゴースト,でんき,一般,ベガ,,https://w.atwiki.jp/altair1/pages/434.html
-ドルマイン,でんき,,Tier1,ベガ,,https://w.atwiki.jp/altair1/pages/437.html
-ドンカラス,あく,ひこう,一般,本家,,https://w.atwiki.jp/altair1/pages/439.html
-バクオング,ノーマル,,一般,本家,,https://w.atwiki.jp/altair1/pages/442.html
-キングラー,みず,,一般,本家,,https://w.atwiki.jp/altair1/pages/444.html
-スモーガス,どく,ほのお,一般,ベガ,,https://w.atwiki.jp/altair1/pages/446.html
-カモドック,どく,,一般,ベガ,,https://w.atwiki.jp/altair1/pages/448.html
-トノッパー,むし,,一般,ベガ,,https://w.atwiki.jp/altair1/pages/449.html
-ガルラーダ,ひこう,,一般,ベガ,,https://w.atwiki.jp/altair1/pages/450.html
-ハサーガ,じめん,,一般,ベガ,,https://w.atwiki.jp/altair1/pages/451.html
-アメリシア,みず,,一般,ベガ,,https://w.atwiki.jp/altair1/pages/452.html
-カンカーン,ほのお,,一般,ベガ,,https://w.atwiki.jp/altair1/pages/455.html
-テイルーン,ゴースト,ひこう,一般,ベガ,,https://w.atwiki.jp/altair1/pages/457.html
-モグルトン,じめん,はがね,一般,ベガ,,https://w.atwiki.jp/altair1/pages/458.html
-マニューラ,あく,こおり,一般,本家,,https://w.atwiki.jp/altair1/pages/460.html
-キノガッサ,くさ,かくとう,封殺,本家,,https://w.atwiki.jp/altair1/pages/462.html
-ラクチャン,ノーマル,,除外,ベガ,,https://w.atwiki.jp/altair1/pages/463.html
-ドゴン,かくとう,ひこう,一般,ベガ,,https://w.atwiki.jp/altair1/pages/464.html
-トコヤミ,あく,ゴースト,一般,ベガ,,https://w.atwiki.jp/altair1/pages/466.html
-クチールス,はがね,,一般,ベガ,,https://w.atwiki.jp/altair1/pages/468.html
-ハッサム,むし,はがね,一般,本家,,https://w.atwiki.jp/altair1/pages/470.html
-ガッツロス,むし,じめん,一般,ベガ,,https://w.atwiki.jp/altair1/pages/472.html
-アーボスク,どく,はがね,一般,ベガ,,https://w.atwiki.jp/altair1/pages/475.html
-モアドガス,どく,あく,一般,ベガ,,https://w.atwiki.jp/altair1/pages/478.html
-ヨノワール,ゴースト,,一般,本家,,https://w.atwiki.jp/altair1/pages/481.html
-ベロベルト,ノーマル,,一般,本家,,https://w.atwiki.jp/altair1/pages/483.html
-アリアドス,むし,どく,一般,本家,,https://w.atwiki.jp/altair1/pages/485.html
-デンチュラ,むし,でんき,一般,本家,,https://w.atwiki.jp/altair1/pages/487.html
-ベタデーム,みず,ほのお,一般,ベガ,,https://w.atwiki.jp/altair1/pages/489.html
-ダンカンス,みず,いわ,一般,ベガ,,https://w.atwiki.jp/altair1/pages/491.html
-ヒササビ,ほのお,ひこう,一般,ベガ,,https://w.atwiki.jp/altair1/pages/493.html
-ドサーモン,みず,じめん,一般,ベガ,,https://w.atwiki.jp/altair1/pages/495.html
-テッコンボ,かくとう,いわ,一般,ベガ,,https://w.atwiki.jp/altair1/pages/497.html
-ボンバット,じめん,ゴースト,一般,ベガ,,https://w.atwiki.jp/altair1/pages/498.html
-ハピナス,ノーマル,,封殺,本家,,https://w.atwiki.jp/altair1/pages/501.html
-テッカニン,むし,ひこう,一般,本家,,https://w.atwiki.jp/altair1/pages/503.html
-ヌケニン,むし,ゴースト,除外,本家,,https://w.atwiki.jp/altair1/pages/504.html
-サンドリル,じめん,,一般,ベガ,,https://w.atwiki.jp/altair1/pages/506.html
-ビビッドン,でんき,エスパー,一般,ベガ,,https://w.atwiki.jp/altair1/pages/511.html
-オールガ,みず,あく,一般,ベガ,,https://w.atwiki.jp/altair1/pages/509.html
-ヒョウカク,こおり,,一般,ベガ,,https://w.atwiki.jp/altair1/pages/508.html
-サーナイト,エスパー,,一般,本家,,https://w.atwiki.jp/altair1/pages/514.html
-エルレイド,エスパー,かくとう,一般,本家,,https://w.atwiki.jp/altair1/pages/515.html
-シルドール,エスパー,,封殺,ベガ,,https://w.atwiki.jp/altair1/pages/517.html
-セルディー,みず,こおり,一般,ベガ,,https://w.atwiki.jp/altair1/pages/529.html
-バーネッコ,くさ,じめん,一般,ベガ,,https://w.atwiki.jp/altair1/pages/531.html
-ヒカリゴケ,くさ,でんき,一般,ベガ,,https://w.atwiki.jp/altair1/pages/533.html
-フリージオ,こおり,,一般,本家,,https://w.atwiki.jp/altair1/pages/534.html
-ワークロ,むし,かくとう,一般,ベガ,,https://w.atwiki.jp/altair1/pages/536.html
-アリンセス,むし,エスパー,一般,ベガ,,https://w.atwiki.jp/altair1/pages/537.html
-ゴローニャ,いわ,じめん,一般,本家,,https://w.atwiki.jp/altair1/pages/535.html
-ドラピオン,どく,あく,一般,本家,,https://w.atwiki.jp/altair1/pages/541.html
-オンネット,ゴースト,,一般,ベガ,,https://w.atwiki.jp/altair1/pages/544.html
-マンムー,こおり,じめん,一般,本家,,https://w.atwiki.jp/altair1/pages/547.html
-マッギョ,じめん,でんき,一般,本家,,https://w.atwiki.jp/altair1/pages/548.html
-パッチール,ノーマル,,一般,本家,,https://w.atwiki.jp/altair1/pages/549.html
-アルデッパ,くさ,みず,一般,ベガ,,https://w.atwiki.jp/altair1/pages/551.html
-カミギリー,あく,むし,一般,ベガ,,https://w.atwiki.jp/altair1/pages/553.html
-ガネーシャ,エスパー,じめん,一般,ベガ,,https://w.atwiki.jp/altair1/pages/555.html
-ギギギアル,はがね,,一般,本家,,https://w.atwiki.jp/altair1/pages/558.html
-ラブリン,みず,ノーマル,Tier1,ベガ,,https://w.atwiki.jp/altair1/pages/561.html
-ラプラス,みず,こおり,一般,本家,,https://w.atwiki.jp/altair1/pages/560.html
-サムラダケ,くさ,ほのお,封殺,ベガ,,https://w.atwiki.jp/altair1/pages/564.html
-ノクタス,くさ,あく,一般,本家,,https://w.atwiki.jp/altair1/pages/566.html
-プテリクス,いわ,ひこう,一般,ベガ,,https://w.atwiki.jp/altair1/pages/568.html
-ティラノス,いわ,あく,一般,ベガ,,https://w.atwiki.jp/altair1/pages/569.html
-ブレイドン,はがね,いわ,一般,ベガ,,https://w.atwiki.jp/altair1/pages/571.html
-ブレイオー,はがね,かくとう,一般,ベガ,,https://w.atwiki.jp/altair1/pages/572.html
-テルテン,ノーマル,,一般,ベガ,,https://w.atwiki.jp/altair1/pages/518.html
-イワパレス,むし,いわ,一般,本家,,https://w.atwiki.jp/altair1/pages/520.html
-ナットレイ,くさ,はがね,封殺,本家,,https://w.atwiki.jp/altair1/pages/522.html
-シビルドン,でんき,,一般,本家,,https://w.atwiki.jp/altair1/pages/525.html
-プレゼンタ,こおり,ひこう,一般,ベガ,,https://w.atwiki.jp/altair1/pages/527.html
-ストータス,ほのお,いわ,一般,ベガ,,https://w.atwiki.jp/altair1/pages/368.html
-ノコウテイ,ノーマル,,一般,ベガ,,https://w.atwiki.jp/altair1/pages/370.html
-カモナイツ,かくとう,ひこう,Tier1,ベガ,,https://w.atwiki.jp/altair1/pages/372.html
-ズルズキン,あく,かくとう,一般,本家,,https://w.atwiki.jp/altair1/pages/374.html
-ドレディア,くさ,,一般,本家,,https://w.atwiki.jp/altair1/pages/376.html
-コジョンド,かくとう,,一般,本家,,https://w.atwiki.jp/altair1/pages/378.html
-ワルビアル,じめん,あく,一般,本家,,https://w.atwiki.jp/altair1/pages/379.html
-ロイツァー,ノーマル,ドラゴン,準伝説,ベガ,,https://w.atwiki.jp/altair1/pages/382.html
-ガタノア,あく,ドラゴン,準伝説,ベガ,,https://w.atwiki.jp/altair1/pages/383.html
-ヒードラン,ほのお,はがね,準伝説,本家,,https://w.atwiki.jp/altair1/pages/385.html
-ラティアス,ドラゴン,エスパー,準伝説,本家,,https://w.atwiki.jp/altair1/pages/386.html
-ラティオス,ドラゴン,エスパー,準伝説,本家,,https://w.atwiki.jp/altair1/pages/387.html
-フィオネ,みず,,一般,本家,,https://w.atwiki.jp/altair1/pages/388.html
-マナフィ,みず,,幻,本家,,https://w.atwiki.jp/altair1/pages/389.html
-オルディナ,ゴースト,,幻,ベガ,,https://w.atwiki.jp/altair1/pages/390.html
-オルマリア,ゴースト,,禁止級,ベガ,,https://w.atwiki.jp/altair1/pages/391.html
-アスフィア,ほのお,ドラゴン,禁止級,ベガ,,https://w.atwiki.jp/altair1/pages/392.html
-`;
-const characterTable = parseCSV(csvData);
-
+let characterTable = [];
 let remainingCharacters = [];
 let selectedCharacters = [];
 let round = 1;
 let candidateCount = 5;
 let scoutCount = 6;
 let activeRules = [];
-let allowedFamiliesGlobal = [];
+let allowedfilterGlobal = [];
+let allowedGenerationGlobal = [];
+let selectedPatchGlobal = "ベガ";
 let currentSeed = 0;
 
-function startGame(){
-    // 選択された特殊ルールをすべて配列に取得
+function loadScript(src) {
+    return new Promise((resolve, reject) => {
+        // すでに同じスクリプトが読み込まれていれば古いものは削除する（重複防止）
+        const oldScript = document.querySelector(`script[src="${src}"]`);
+        if (oldScript) oldScript.remove();
+
+        const script = document.createElement('script');
+        script.src = src;
+        script.onload = () => resolve();
+        script.onerror = () => reject(new Error(`ファイルの読み込みに失敗しました: ${src}`));
+        document.head.appendChild(script);
+    });
+}
+
+async function startGame(){
+    // 各種設定値の取得
     const checkboxesRules = document.querySelectorAll('input[name="specialRules"]:checked');
     activeRules = Array.from(checkboxesRules).map(cb => cb.value);
 
-    const checkboxes = document.querySelectorAll('input[name="allowedFamily"]:checked');
-    allowedFamiliesGlobal = Array.from(checkboxes).map(cb => cb.value);
+    const checkboxesFilters = document.querySelectorAll('input[name="allowedFilter"]:checked');
+    allowedfilterGlobal = Array.from(checkboxesFilters).map(cb => cb.value);
+
+    const checkboxesGeneration = document.querySelectorAll('input[name="allowedGeneration"]:checked');
+    allowedGenerationGlobal = Array.from(checkboxesGeneration).map(cb => cb.value);
+
+    const radioPatch = document.querySelector('input[name="patchFilter"]:checked');
+    selectedPatchGlobal = radioPatch ? radioPatch.value : "ベガ";
+    
+    let targetScript = "charaDB/ベガ.js";
+    if (selectedPatchGlobal === "プロデネ") {
+        targetScript = "charaDB/プロデネ.js";
+    }
+
+    try {
+        await loadScript(targetScript);
+
+        if (window.customCsvData) {
+            characterTable = parseCSV(window.customCsvData);
+        } else {
+            alert("データが見つかりませんでした。");
+            return;
+        }
+
+    } catch (error) {
+        alert("エラーが発生しました: " + error.message);
+        return; // エラー時はここで処理をストップ
+    }
 
     remainingCharacters = [...characterTable];
     selectedCharacters = [];
@@ -699,11 +627,14 @@ function startGame(){
     if(name === ""){ name = "名前未入力"; }
     const today = new Intl.DateTimeFormat("sv-SE", { timeZone: "Asia/Tokyo" }).format(new Date());
     
-    currentSeed = stringToSeed(name + today + candidateCount + scoutCount + allowedFamiliesGlobal.join(",") + activeRules.join(","));
+    currentSeed = stringToSeed(name + today + candidateCount + scoutCount + selectedPatchGlobal + allowedfilterGlobal.join(",") + allowedGenerationGlobal.join(",") + activeRules.join(","));
 
+    // 画面エリアの切り替え
     document.getElementById("startArea").style.display = "none";
     document.getElementById("scoutOptionArea").style.display = "none";
+    document.getElementById("patchArea").style.display = "none";
     document.getElementById("filterArea").style.display = "none";
+    document.getElementById("generationArea").style.display = "none";
     document.getElementById("optionArea").style.display = "none";
     document.getElementById("selectedList").style.display = "block";
     document.getElementById("boostNotice").style.display = "block";
@@ -732,7 +663,6 @@ function parseCSV(csv) {
 }
 
 function showChoices(){
-    
     let name = document.getElementById("username").value || "名前未入力";
     const today = new Intl.DateTimeFormat("sv-SE", { timeZone: "Asia/Tokyo" }).format(new Date());
 
@@ -749,7 +679,14 @@ function showChoices(){
     let currentPool = remainingCharacters;
     let noticeTexts = [];
 
-    // すでに獲得しているポケモンの全タイプ（空白除く）をセットとして抽出
+    // --- 【追加】特殊ルール：「しんかのきせき追加」が無効なときは輝石キャラをあらかじめ除外 ---
+    if (!activeRules.includes("Eviolite")) {
+        currentPool = currentPool.filter(c => {
+            return !(c.styleForm && c.styleForm.trim() === "輝石");
+        });
+    }
+
+    // --- 【2. 特殊ルール：タイプ重複禁止 (typeUnique) 】 ---
     if (activeRules.includes("typeUnique")) {
         const selectedTypes = new Set();
         selectedCharacters.forEach(c => {
@@ -757,7 +694,7 @@ function showChoices(){
             if (c.type2 && c.type2.trim() !== "") selectedTypes.add(c.type2.trim());
         });
         
-        // 獲得済みポケモンのタイプを1つでも持っていたらプールから除外
+        // 獲得済みキャラクターのタイプを1つでも持っていたらプールから除外
         if (selectedTypes.size > 0) {
             currentPool = currentPool.filter(c => {
                 const hasType1 = c.type1 && selectedTypes.has(c.type1.trim());
@@ -766,38 +703,51 @@ function showChoices(){
             });
         }
     }
+    //BanFilterによる選別
+    currentPool = currentPool.filter(c => {
+        if (c.banFilter && c.banFilter.trim() !== "") {
+            const banItems = c.banFilter.split('/');
+            const isBanned = banItems.some(item => selectedPatchGlobal.includes(item.trim()));
+            if (isBanned) {
+                return false;
+            }
+        }
+        return true;
+    });
 
+    //世代による選別
+    currentPool = currentPool.filter(c => {
+        const charGenerations = c.generation ? c.generation.split('/') : ["ベガ"];
+        return charGenerations.some(f => allowedGenerationGlobal.includes(f));
+    });
+
+    //特殊ルール選別
     if (activeRules.includes("legend6th")) {
         if (round < scoutCount) {
             currentPool = currentPool.filter(c => {
-                const familyKey = (c.family === "") ? "一般" : c.family;
-                const isAllowedByFilter = allowedFamiliesGlobal.includes(familyKey);
-                const isNotLegendaryOr600 = (c.family !== "準伝説" && c.family !== "禁止級" && c.family !== "幻" && c.family !== "600族");
+                const charFilters = c.filters ? c.filters.split('/') : ["一般"];
+                // 選択された出現フィルターのいずれかに完全一致するか
+                const isAllowedByFilter = charFilters.some(f => allowedfilterGlobal.includes(f));
+                // 伝説/600族が含まれていないか
+                const isNotLegendaryOr600 = !charFilters.includes("準伝説") && !charFilters.includes("禁止級") && !charFilters.includes("幻") && !charFilters.includes("600族");
                 return isAllowedByFilter && isNotLegendaryOr600;
             });
             noticeTexts.push("<span style='color: #333;'>🐇 伝説・600族 出現なし</span>");
         } else if (round === scoutCount) {
             currentPool = currentPool.filter(c => {
-                const familyKey = (c.family === "") ? "一般" : c.family;
-                const isAllowedByFilter = allowedFamiliesGlobal.includes(familyKey);
-                const isLegendaryOr600 = (c.family === "準伝説" || c.family === "禁止級" || c.family === "幻" || c.family === "600族");
+                const charFilters = c.filters ? c.filters.split('/') : ["一般"];
+                const isAllowedByFilter = charFilters.some(f => allowedfilterGlobal.includes(f));
+                // 伝説/600族のいずれかが含まれているか
+                const isLegendaryOr600 = charFilters.includes("準伝説") || charFilters.includes("禁止級") || charFilters.includes("幻") || charFilters.includes("600族");
                 return isAllowedByFilter && isLegendaryOr600;
             });
             noticeTexts.push("👑 最終回：伝説・600族 確定出現！");
         }
     } else {
+        //フィルター条件を満たすキャラクターをプールに残す
         currentPool = currentPool.filter(c => {
-            const familyKey = (c.family === "") ? "一般" : c.family;
-            return allowedFamiliesGlobal.includes(familyKey);
-        });
-    }
-    //ベガオリジナル
-    if (activeRules.includes("vegaOriginal")) {
-        currentPool = currentPool.filter(c => {
-            const familyKey = (c.family === "") ? "一般" : c.family;
-            const isAllowedByFilter = allowedFamiliesGlobal.includes(familyKey);
-            const isvegaOriginal = (c.family2 === "ベガ");
-            return isAllowedByFilter && isvegaOriginal;
+            const charFilters = c.filters ? c.filters.split('/') : ["一般"];
+            return charFilters.some(f => allowedfilterGlobal.includes(f));
         });
     }
 
@@ -813,15 +763,22 @@ function showChoices(){
     }
 
     if (currentPool.length === 0) {
-        alert("出現条件に合うポケモンがプールに存在しないため、ここでスカウトを終了します。");
-        showResult();
-        return;
+        if (round === 1) {
+            alert("出現条件に合うキャラクターがプールに存在しません。");
+            resetToStart();
+            return;
+        }else{
+            alert("出現条件に合うキャラクターがプールに存在しないため、ここでスカウトを終了します。");
+            showResult();
+            return;
+        }
     }
 
     // 重み付けオブジェクトの作成
     let pool = currentPool.map(c => {
         let weight = 1;
-        if (activeRules.includes("starter30x") && round === 1 && (c.family3 === "御三家")) {
+        const charFilters = c.filters ? c.filters.split('/') : ["一般"];
+        if (activeRules.includes("starter30x") && round === 1 && charFilters.includes("御三家")) {
             weight = 30;
         }
         return { data: c, weight: weight };
@@ -855,14 +812,17 @@ function showChoices(){
     let ruleNames = [];
     if (activeRules.includes("starter30x")) ruleNames.push("御三家30倍");
     if (activeRules.includes("legend6th")) ruleNames.push("伝説最後確定");
-    if (activeRules.includes("vegaOriginal")) ruleNames.push("ベガオリジナル");
     if (activeRules.includes("typeUnique")) ruleNames.push("タイプ重複禁止");
+    if (activeRules.includes("Eviolite")) ruleNames.push("輝石");
     let ruleText = ruleNames.length > 0 ? ruleNames.join("＋") : "なし";
-    let filterText = allowedFamiliesGlobal.length > 0 ? allowedFamiliesGlobal.join("、") : "なし";
+    let filterText = allowedfilterGlobal.length > 0 ? allowedfilterGlobal.join("、") : "なし";
+    let generationText = allowedGenerationGlobal.length > 0 ? allowedGenerationGlobal.join("、") : "なし";
 
     document.getElementById("seed").innerHTML = `
         名前：${name}　日付：${today}　提示数：${candidateCount}種類<br>
+        作品：${selectedPatchGlobal}<br>
         フィルター：${filterText}<br>
+        世代：${generationText}<br>
         特殊ルール：${ruleText}
     `;
     
@@ -877,14 +837,45 @@ function showChoices(){
         const card = document.createElement("div");
         card.className = "chara-card";
 
+        // 画像とアイコンを内包するコンテナを生成
+        const imgContainer = document.createElement("div");
+        imgContainer.className = "img-container";
+
         const img = document.createElement("img");
         img.className = "chara-img";
-        img.src = charData.img ? charData.img : `images/pokemon/${charData.name}.png`; 
+        img.src = charData.img ? charData.img : `images/${selectedPatchGlobal}/${charData.name}.png`; 
         img.alt = charData.name;
         img.onerror = function() {
             this.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'><rect width='100' height='100' fill='%23eee'/><text x='50%' y='50%' font-size='12' text-anchor='middle' alignment-baseline='middle' fill='%23aaa'>No Image</text></svg>";
         };
-        card.appendChild(img);
+        imgContainer.appendChild(img);
+
+        if (charData.styleForm && charData.styleForm.trim() === "デルタ") {
+            const icon = document.createElement("img");
+            icon.className = "style-icon";
+            icon.src = "images/icon/デルタの石.png";
+            imgContainer.appendChild(icon);
+        }
+        if (charData.styleForm && charData.styleForm.trim() === "ホロン") {
+            const icon = document.createElement("img");
+            icon.className = "style-icon";
+            icon.src = "images/icon/ホロン.png";
+            imgContainer.appendChild(icon);
+        }
+        if (charData.styleForm && charData.styleForm.trim() === "太陽") {
+            const icon = document.createElement("img");
+            icon.className = "style-icon";
+            icon.src = "images/icon/太陽の石.png";
+            imgContainer.appendChild(icon);
+        }
+        if (charData.styleForm && charData.styleForm.trim() === "輝石") {
+            const icon = document.createElement("img");
+            icon.className = "style-icon";
+            icon.src = "images/icon/しんかのきせき.png";
+            imgContainer.appendChild(icon);
+        }
+
+        card.appendChild(imgContainer);
 
         const typeContainer = document.createElement("div");
         typeContainer.className = "type-container";
@@ -903,13 +894,15 @@ function showChoices(){
         button.onclick = () => selectCharacter(charData);
         card.appendChild(button);
 
-        const link = document.createElement("a");
-        link.className = "chara-link";
-        if (charData.link) link.href = charData.link;
-        link.target = "_blank";
-        link.rel = "noopener noreferrer";
-        link.textContent = "wiki ↗";
-        card.appendChild(link);
+        if (charData.link !== ""){
+            const link = document.createElement("a");
+            link.className = "chara-link";
+            if (charData.link) link.href = charData.link;
+            link.target = "_blank";
+            link.rel = "noopener noreferrer";
+            link.textContent = "wiki ↗";
+            card.appendChild(link);
+        }
         
         choicesDiv.appendChild(card);
     });
@@ -917,7 +910,17 @@ function showChoices(){
 
 function selectCharacter(characterObj){
     selectedCharacters.push(characterObj);
+    
+    // 選択されたキャラをプールから除外
     remainingCharacters = remainingCharacters.filter(c => c.name !== characterObj.name);
+
+    // --- 【追加】選んだキャラが輝石キャラだった場合、以降は輝石キャラをプールから全て取り除く ---
+    if (characterObj.styleForm && characterObj.styleForm.trim() === "輝石") {
+        remainingCharacters = remainingCharacters.filter(c => {
+            return !(c.styleForm && c.styleForm.trim() === "輝石");
+        });
+    }
+
     updateSelectedList();
 
     if(round >= scoutCount){
@@ -945,14 +948,45 @@ function showResult(){
         const card = document.createElement("div");
         card.className = "chara-card";
 
+        const imgContainer = document.createElement("div");
+        imgContainer.className = "img-container";
+
         const img = document.createElement("img");
         img.className = "chara-img";
-        img.src = charData.img ? charData.img : `images/pokemon/${charData.name}.png`;
+        img.src = charData.img ? charData.img : `images/${selectedPatchGlobal}/${charData.name}.png`;
         img.alt = charData.name;
         img.onerror = function() {
             this.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'><rect width='100' height='100' fill='%23eee'/><text x='50%' y='50%' font-size='12' text-anchor='middle' alignment-baseline='middle' fill='%23aaa'>No Image</text></svg>";
         };
-        card.appendChild(img);
+        imgContainer.appendChild(img);
+
+        // リザルト画面のカード右上にも各種アイコンを適用
+        if (charData.styleForm && charData.styleForm.trim() === "デルタ") {
+            const icon = document.createElement("img");
+            icon.className = "style-icon";
+            icon.src = "images/icon/デルタの石.png";
+            imgContainer.appendChild(icon);
+        }
+        if (charData.styleForm && charData.styleForm.trim() === "ホロン") {
+            const icon = document.createElement("img");
+            icon.className = "style-icon";
+            icon.src = "images/icon/ホロン.png";
+            imgContainer.appendChild(icon);
+        }
+        if (charData.styleForm && charData.styleForm.trim() === "太陽") {
+            const icon = document.createElement("img");
+            icon.className = "style-icon";
+            icon.src = "images/icon/太陽の石.png";
+            imgContainer.appendChild(icon);
+        }
+        if (charData.styleForm && charData.styleForm.trim() === "輝石") {
+            const icon = document.createElement("img");
+            icon.className = "style-icon";
+            icon.src = "images/icon/しんかのきせき.png";
+            imgContainer.appendChild(icon);
+        }
+
+        card.appendChild(imgContainer);
 
         const typeContainer = document.createElement("div");
         typeContainer.className = "type-container";
@@ -971,13 +1005,15 @@ function showResult(){
         nameTag.textContent = charData.name;
         card.appendChild(nameTag);
 
-        const link = document.createElement("a");
-        link.className = "chara-link";
-        if (charData.link) link.href = charData.link;
-        link.target = "_blank";
-        link.rel = "noopener noreferrer";
-        link.textContent = "wiki ↗";
-        card.appendChild(link);
+        if (charData.link !== ""){
+            const link = document.createElement("a");
+            link.className = "chara-link";
+            if (charData.link) link.href = charData.link;
+            link.target = "_blank";
+            link.rel = "noopener noreferrer";
+            link.textContent = "wiki ↗";
+            card.appendChild(link);
+        }
 
         resultDisplay.appendChild(card);
     });
@@ -987,22 +1023,47 @@ function showResult(){
         <button id=\"retryButton\">同じ設定でもう一度やりなおす</button>
     `;
     document.getElementById("copyButton").onclick = copyResult;
-    document.getElementById("retryButton").onclick = resetToStart; // クリックで初期画面へ戻る関数を実行
+    document.getElementById("retryButton").onclick = resetToStart;
 }
 
 function copyResult(){
-    const text = selectedCharacters.map(c => c.name).join("\n");
-    navigator.clipboard.writeText(text).then(() => {
-        alert("チーム内容をコピーしました！");
-    });
+    // 各キャラクターのnameの後ろに、styleFormがあればカッコ付きで追加する
+    const text = selectedCharacters.map((char, index) => {
+        // styleFormが存在し、かつ空文字でなければ「（形式）」を後ろに付ける
+        const formSuffix = char.styleForm ? `（${char.styleForm}）` : "";
+        return `${index + 1}. ${char.name}${formSuffix}`;
+    }).join("\n");
+
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(text).then(() => {
+            alert("結果をクリップボードにコピーしました！");
+        }).catch(err => {
+            alert("コピーに失敗しました: " + err);
+        });
+    } else {
+        const textarea = document.createElement("textarea");
+        textarea.value = text;
+        document.body.appendChild(textarea);
+        textarea.select();
+        try {
+            document.execCommand("copy");
+            alert("結果をクリップボードにコピーしました！");
+        } catch (err) {
+            alert("コピーに失敗しました");
+        }
+        document.body.removeChild(textarea);
+    }
 }
 
+//入力を保持したまま最初の状態に戻す関数
 function resetToStart(){
 
     // 非表示になっていた設定エリアや開始エリアを元に戻す
     document.getElementById("startArea").style.display = "block";
     document.getElementById("scoutOptionArea").style.display = "block";
+    document.getElementById("patchArea").style.display = "block";
     document.getElementById("filterArea").style.display = "block";
+    document.getElementById("generationArea").style.display = "block";
     document.getElementById("optionArea").style.display = "block";
 
     // ドラフト中・結果画面の表示を非表示にする
@@ -1020,12 +1081,12 @@ function resetToStart(){
 }
 
 function updateSelectedList(){
-    const selectedList = document.getElementById("selectedList");
-    if(selectedCharacters.length === 0){
-        selectedList.textContent = "";
-        return;
-    }
-    selectedList.innerHTML = selectedCharacters.map((char,index) => `${index + 1}. ${char.name}`).join("<br>");
+    const listDiv = document.getElementById("selectedList");
+    // styleFormがあれば名前の後ろにカッコ付きで追加する
+    listDiv.innerHTML = selectedCharacters.map((char, index) => {
+        const formSuffix = char.styleForm ? `（${char.styleForm}）` : "";
+        return `<div class="selected-item">${index + 1}. ${char.name}${formSuffix}</div>`;
+    }).join("");
 }
 
 function stringToSeed(str) {
@@ -1042,6 +1103,35 @@ function seededRandom(seed) {
 }
 
 document.getElementById("startButton").addEventListener("click", startGame);
+
+// 「全てチェック」ボタンを押したときの処理
+document.getElementById("selectAllFilters").addEventListener("click", () => {
+    const checkboxes = document.querySelectorAll('input[name="allowedFilter"]');
+    checkboxes.forEach(cb => {
+        cb.checked = true;
+    });
+});
+document.getElementById("cancelAllFilters").addEventListener("click", () => {
+    const checkboxes = document.querySelectorAll('input[name="allowedFilter"]');
+    checkboxes.forEach(cb => {
+        cb.checked = false;
+    });
+});
+
+// 「全てチェック」ボタンを押したときの処理
+document.getElementById("selectAllGeneration").addEventListener("click", () => {
+    const checkboxes = document.querySelectorAll('input[name="allowedGeneration"]');
+    checkboxes.forEach(cb => {
+        cb.checked = true;
+    });
+});
+document.getElementById("cancelAllGeneration").addEventListener("click", () => {
+    const checkboxes = document.querySelectorAll('input[name="allowedGeneration"]');
+    checkboxes.forEach(cb => {
+        cb.checked = false;
+    });
+});
+
 </script>
 
 </body>
