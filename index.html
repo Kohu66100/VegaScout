@@ -261,7 +261,6 @@ select {
     height: 48px;
     object-fit: contain;
     z-index: 3;
-    opacity: 0.75;
 }
 
 .type-container {
@@ -402,7 +401,7 @@ select {
 </head>
 <body>
 
-<h1>ベガスカウト ver0.3</h1>
+<h1>ベガスカウト ver0.4</h1>
 
 <div id="startArea">
     <input type="text" id="username" placeholder="名前を入力">
@@ -498,9 +497,9 @@ select {
 <div id="choices"></div>
 <p id="boostNotice"></p>
 
-<div id="selectedList"></div>
 <div id="resultDisplay"></div>
 <div id="result"></div>
+<div id="selectedList"></div>
 
 <div id="description">
     <h2>説明</h2>
@@ -559,6 +558,19 @@ select {
     </div>
 </details>
 
+<details id="filterGuide">
+    <summary><strong>レベル混沌モードについて</strong></summary>
+    <div class="guideContent">
+    <p>全てのキャラクターがランダムなレベルで提示されます。</p>
+    <p>評価が低いキャラほど高レベルで出現します。</p>
+    <p>どのようなゲームバランスになるかは誰にも予想できません。</p>
+    <p>◆調整目安</p>
+    <p>御三家：Lv52～Lv55</p>
+    <p>序盤ノーマル：Lv58～Lv61</p>
+    <p>強い準伝：Lv47～Lv50</p>
+</div>
+</details>
+
 <script>
 let characterTable = [];
 let remainingCharacters = [];
@@ -569,7 +581,7 @@ let scoutCount = 6;
 let activeRules = [];
 let allowedfilterGlobal = [];
 let allowedGenerationGlobal = [];
-let selectedPatchGlobal = "ベガ";
+let selectedPatchGlobal = "本家";
 let currentSeed = 0;
 
 function loadScript(src) {
@@ -598,11 +610,11 @@ async function startGame(){
     allowedGenerationGlobal = Array.from(checkboxesGeneration).map(cb => cb.value);
 
     const radioPatch = document.querySelector('input[name="patchFilter"]:checked');
-    selectedPatchGlobal = radioPatch ? radioPatch.value : "ベガ";
+    selectedPatchGlobal = radioPatch ? radioPatch.value : "本家";
     
-    let targetScript = "charaDB/ベガ.js";
-    if (selectedPatchGlobal === "プロデネ") {
-        targetScript = "charaDB/プロデネ.js";
+    let targetScript = "charaDB/本家.js";
+    if (selectedPatchGlobal !== "本家") {
+        targetScript = `charaDB/${selectedPatchGlobal}.js`;
     }
 
     try {
@@ -643,7 +655,7 @@ async function startGame(){
     document.getElementById("boostNotice").style.display = "block";
     
     // リザルト表示をリセットしておく
-    document.getElementById("resultDisplay").style.display = "grid";
+    document.getElementById("resultDisplay").style.display = "none";
     document.getElementById("resultDisplay").innerHTML = "";
     document.getElementById("result").innerHTML = "";
 
@@ -706,21 +718,10 @@ function showChoices(){
             });
         }
     }
-    //BanFilterによる選別
-    currentPool = currentPool.filter(c => {
-        if (c.banFilter && c.banFilter.trim() !== "") {
-            const banItems = c.banFilter.split('/');
-            const isBanned = banItems.some(item => selectedPatchGlobal.includes(item.trim()));
-            if (isBanned) {
-                return false;
-            }
-        }
-        return true;
-    });
 
     //世代による選別
     currentPool = currentPool.filter(c => {
-        const charGenerations = c.generation ? c.generation.split('/') : ["ベガ"];
+        const charGenerations = c.generation ? c.generation.split('/') : ["一般"];
         return charGenerations.some(f => allowedGenerationGlobal.includes(f));
     });
 
@@ -728,29 +729,34 @@ function showChoices(){
     if (activeRules.includes("legend6th")) {
         if (round < scoutCount) {
             currentPool = currentPool.filter(c => {
-                const charFilters = c.filters ? c.filters.split('/') : ["一般"];
-                // 選択された出現フィルターのいずれかに完全一致するか
-                const isAllowedByFilter = charFilters.some(f => allowedfilterGlobal.includes(f));
-                // 伝説/600族が含まれていないか
+                const charFilters = c.filters ? c.filters.split('/').map(f => f.trim()) : ["一般"];
+                
+                // キャラクターの持つフィルターがすべて、選択されたフィルターに含まれている
+                const isWithinSelection = charFilters.every(f => allowedfilterGlobal.includes(f));
+                
                 const isNotLegendaryOr600 = !charFilters.includes("準伝説") && !charFilters.includes("禁止級") && !charFilters.includes("幻") && !charFilters.includes("600族");
-                return isAllowedByFilter && isNotLegendaryOr600;
+                return isWithinSelection && isNotLegendaryOr600;
             });
             noticeTexts.push("<span style='color: #333;'>🐇 伝説・600族 出現なし</span>");
         } else if (round === scoutCount) {
             currentPool = currentPool.filter(c => {
-                const charFilters = c.filters ? c.filters.split('/') : ["一般"];
-                const isAllowedByFilter = charFilters.some(f => allowedfilterGlobal.includes(f));
-                // 伝説/600族のいずれかが含まれているか
+                const charFilters = c.filters ? c.filters.split('/').map(f => f.trim()) : ["一般"];
+                
+                // キャラクターの持つフィルターがすべて、選択されたフィルターに含まれている
+                const isWithinSelection = charFilters.every(f => allowedfilterGlobal.includes(f));
+                
                 const isLegendaryOr600 = charFilters.includes("準伝説") || charFilters.includes("禁止級") || charFilters.includes("幻") || charFilters.includes("600族");
-                return isAllowedByFilter && isLegendaryOr600;
+                return isWithinSelection && isLegendaryOr600;
             });
             noticeTexts.push("👑 最終回：伝説・600族 確定出現！");
         }
     } else {
         //フィルター条件を満たすキャラクターをプールに残す
         currentPool = currentPool.filter(c => {
-            const charFilters = c.filters ? c.filters.split('/') : ["一般"];
-            return charFilters.some(f => allowedfilterGlobal.includes(f));
+            const charFilters = c.filters ? c.filters.split('/').map(f => f.trim()) : ["一般"];
+            
+            // キャラクターの持つフィルターがすべて、選択されたフィルターに含まれている場合のみ残す (未選択のフィルターを1つでも持っていれば除外)
+            return charFilters.every(f => allowedfilterGlobal.includes(f));
         });
     }
 
@@ -780,7 +786,7 @@ function showChoices(){
     // 重み付けオブジェクトの作成
     let pool = currentPool.map(c => {
         let weight = 1;
-        const charFilters = c.filters ? c.filters.split('/') : ["一般"];
+        const charFilters = c.characterRace ? c.characterRace.split('/') : [""];
         if (activeRules.includes("starter30x") && round === 1 && charFilters.includes("御三家")) {
             weight = 30;
         }
@@ -859,37 +865,28 @@ function showChoices(){
         const imgContainer = document.createElement("div");
         imgContainer.className = "img-container";
 
+        //キャラクター画像ファイル
         const img = document.createElement("img");
         img.className = "chara-img";
-        img.src = charData.img ? charData.img : `images/${selectedPatchGlobal}/${charData.name}.png`; 
+        if (charData.imgFile && charData.imgFile.trim() !== "") {
+            img.src = `images/${selectedPatchGlobal}/${charData.imgFile}.png`;
+        } else {
+            img.src = `images/${selectedPatchGlobal}/${charData.name}.png`;
+        }
         img.alt = charData.name;
         img.onerror = function() {
-            this.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'><rect width='100' height='100' fill='%23eee'/><text x='50%' y='50%' font-size='12' text-anchor='middle' alignment-baseline='middle' fill='%23aaa'>No Image</text></svg>";
+            img.src = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
         };
         imgContainer.appendChild(img);
-
-        if (charData.styleForm && charData.styleForm.trim() === "デルタ") {
+        
+        if (charData.styleForm) {
             const icon = document.createElement("img");
             icon.className = "style-icon";
-            icon.src = "images/icon/デルタの石.png";
-            imgContainer.appendChild(icon);
-        }
-        if (charData.styleForm && charData.styleForm.trim() === "ホロン") {
-            const icon = document.createElement("img");
-            icon.className = "style-icon";
-            icon.src = "images/icon/ホロン.png";
-            imgContainer.appendChild(icon);
-        }
-        if (charData.styleForm && charData.styleForm.trim() === "太陽") {
-            const icon = document.createElement("img");
-            icon.className = "style-icon";
-            icon.src = "images/icon/太陽の石.png";
-            imgContainer.appendChild(icon);
-        }
-        if (charData.styleForm && charData.styleForm.trim() === "輝石") {
-            const icon = document.createElement("img");
-            icon.className = "style-icon";
-            icon.src = "images/icon/しんかのきせき.png";
+            icon.src = `images/icon/${charData.styleForm}.png`;
+            icon.alt = charData.styleForm;
+            icon.onerror = function() {
+                icon.src = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
+            }
             imgContainer.appendChild(icon);
         }
 
@@ -955,12 +952,13 @@ function selectCharacter(characterObj){
 function showResult(){
     document.getElementById("choices").innerHTML = "";
     document.getElementById("choices").style.display = "none";
+    document.getElementById("selectedList").style.display = "none";
     document.getElementById("boostNotice").style.display = "none";
     document.getElementById("boostNotice").style.margin = "0";
-    document.getElementById("selectedList").style.display = "none";
     
     document.getElementById("round").style.display = "none";
 
+    document.getElementById("resultDisplay").style.display = "grid";
     const resultDisplay = document.getElementById("resultDisplay");
     resultDisplay.innerHTML = "";
 
@@ -971,38 +969,28 @@ function showResult(){
         const imgContainer = document.createElement("div");
         imgContainer.className = "img-container";
 
+        //キャラクター画像ファイル
         const img = document.createElement("img");
         img.className = "chara-img";
-        img.src = charData.img ? charData.img : `images/${selectedPatchGlobal}/${charData.name}.png`;
+        if (charData.imgFile && charData.imgFile.trim() !== "") {
+            img.src = `images/${selectedPatchGlobal}/${charData.imgFile}.png`;
+        } else {
+            img.src = `images/${selectedPatchGlobal}/${charData.name}.png`;
+        }
         img.alt = charData.name;
         img.onerror = function() {
-            this.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'><rect width='100' height='100' fill='%23eee'/><text x='50%' y='50%' font-size='12' text-anchor='middle' alignment-baseline='middle' fill='%23aaa'>No Image</text></svg>";
+            img.src = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
         };
         imgContainer.appendChild(img);
-
-        // リザルト画面のカード右上にも各種アイコンを適用
-        if (charData.styleForm && charData.styleForm.trim() === "デルタ") {
+        
+        if (charData.styleForm) {
             const icon = document.createElement("img");
             icon.className = "style-icon";
-            icon.src = "images/icon/デルタの石.png";
-            imgContainer.appendChild(icon);
-        }
-        if (charData.styleForm && charData.styleForm.trim() === "ホロン") {
-            const icon = document.createElement("img");
-            icon.className = "style-icon";
-            icon.src = "images/icon/ホロン.png";
-            imgContainer.appendChild(icon);
-        }
-        if (charData.styleForm && charData.styleForm.trim() === "太陽") {
-            const icon = document.createElement("img");
-            icon.className = "style-icon";
-            icon.src = "images/icon/太陽の石.png";
-            imgContainer.appendChild(icon);
-        }
-        if (charData.styleForm && charData.styleForm.trim() === "輝石") {
-            const icon = document.createElement("img");
-            icon.className = "style-icon";
-            icon.src = "images/icon/しんかのきせき.png";
+            icon.src = `images/icon/${charData.styleForm}.png`;
+            icon.alt = charData.styleForm;
+            icon.onerror = function() {
+                icon.src = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
+            };
             imgContainer.appendChild(icon);
         }
 
@@ -1039,10 +1027,23 @@ function showResult(){
         resultDisplay.appendChild(card);
     });
 
+    // 【修正点】コピーした際のテキスト一覧（selectedListと同等の内容）を生成
+    const listHtml = selectedCharacters.map((char, index) => {
+        const formSuffix = char.styleForm ? `（${char.styleForm}）` : "";
+        const levelSuffix = char.chosenLevel ? ` Lv.${char.chosenLevel}` : "";
+        return `<div class="selected-item" style="margin: 4px 0;">${index + 1}. ${char.name}${formSuffix}${levelSuffix}</div>`;
+    }).join("");
+
+    // 【修正点】コピーボタンとやりなおすボタンの間に、作成したリストを挟み込む
+    // 見栄えを整えるため、挟み込むリストに簡易的なスタイル（枠線や背景）を当てています
     document.getElementById("result").innerHTML = `
-        <button id=\"copyButton\">結果をテキストでコピー</button>
-        <button id=\"retryButton\">同じ設定でもう一度やりなおす</button>
+        <button id="copyButton">結果をコピー</button>
+        <div id="resultSelectedList" style="margin: 20px auto; padding: 20px; background: #eef2f7; border: 2px dashed #cbd5e1; border-radius: 10px; max-width: 400px; text-align: left;">
+            ${listHtml}
+        </div>
+        <button id="retryButton">同じ設定でもう一度やりなおす</button>
     `;
+    
     document.getElementById("copyButton").onclick = copyResult;
     document.getElementById("retryButton").onclick = resetToStart;
 }
@@ -1050,6 +1051,7 @@ function showResult(){
 function copyResult(){
     // 各キャラクターのnameの後ろに、styleFormがあればカッコ付きで追加する
     const text = selectedCharacters.map((char, index) => {
+        // styleFormが存在し、かつ空文字でなければ「（形式）」を後ろに付ける
         const formSuffix = char.styleForm ? `（${char.styleForm}）` : "";
         const levelSuffix = char.chosenLevel ? ` Lv.${char.chosenLevel}` : "";
         return `${index + 1}. ${char.name}${formSuffix}${levelSuffix}`;
