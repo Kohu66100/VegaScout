@@ -351,7 +351,6 @@ select {
 #description {
     margin-top: 5px;
     border-top: 2px solid #dee2e6;
-    border-bottom: 2px solid #dee2e6;
     text-align: left;
 }
 
@@ -400,13 +399,13 @@ select {
 
 table {
     width: 100%;
-    max-width: 900px;
-    margin: 20px auto; 
+    margin: 0 auto;
     border-collapse: collapse;
     background-color: #fff;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     table-layout: fixed;
 }
+
 th, td {
     border: 1px solid #ddd;
     padding: 10px 4px;
@@ -452,6 +451,24 @@ table td:nth-child(3) {
     vertical-align: middle;
 }
 
+/* テーブル表示領域が伸縮して下部要素がズレるのを防ぐコンテナ */
+.table-container {
+    min-height: 350px;
+    max-width: 900px;
+    margin: 20px auto;
+    display: none;
+}
+
+.preview-row {
+    background-color: #f0f4f8;
+}
+
+.preview-row td:first-child {
+    background-color: #e3f2fd;
+    color: #1565c0;
+    font-weight: bold;
+}
+
 .damage-4 { background-color: #ff4d4d; color: white; font-weight: bold; }
 .damage-2 { background-color: #ff9999; font-weight: bold; }
 .damage-1 { background-color: #ffffff; }
@@ -463,7 +480,7 @@ table td:nth-child(3) {
 </head>
 <body>
 
-<h1>ベガスカウト ver0.5</h1>
+<h1>ベガスカウト ver0.6</h1>
 
 <div id="startArea">
     <input type="text" id="username" placeholder="名前を入力">
@@ -563,13 +580,15 @@ table td:nth-child(3) {
 <div id="result"></div>
 <div id="selectedList"></div>
 
-<table id="resultTable" style="display: none;">
-    <thead>
-        <tr id="headerRow"></tr>
-    </thead>
-    <tbody id="resultBody">
+<div class="table-container">
+    <table id="resultTable">
+        <thead>
+            <tr id="headerRow"></tr>
+        </thead>
+        <tbody id="resultBody">
         </tbody>
-</table>
+    </table>
+</div>
 
 <div id="description">
     <h2>説明</h2>
@@ -656,6 +675,7 @@ let allowedGenerationGlobal = [];
 let selectedPatchGlobal = "本家";
 let currentSeed = 0;
 
+const tableContainer = document.querySelector('.table-container');
 const submitBtn = document.getElementById('submitBtn');
 const resultTable = document.getElementById('resultTable');
 const headerRow = document.getElementById('headerRow');
@@ -777,8 +797,8 @@ async function startGame(){
     resultBody.innerHTML = "";
 
     // 最初の1回目だけヘッダーを生成
-    if (resultTable.style.display !== 'table') {
-        resultTable.style.display = 'table';
+    if (tableContainer.style.display !== 'block') {
+        tableContainer.style.display = 'block';
         headerRow.innerHTML = "";
         typeDBGenerate();
     }
@@ -1030,10 +1050,35 @@ function showChoices(){
         card.appendChild(typeContainer);
 
         const button = document.createElement("button");
-        // レベルが決定していればボタンのテキストに反映
         const levelText = charData.chosenLevel ? `<br>Lv.${charData.chosenLevel}` : "";
         button.innerHTML = charData.name + levelText;
-        button.onclick = () => selectCharacter(charData);
+        button.onclick = () => {
+            // 確定クリックされたら残っているプレビュー行を消去する
+            const existingPreview = resultBody.querySelector('.preview-row');
+            if (existingPreview) existingPreview.remove();
+            selectCharacter(charData);
+        };
+
+        button.addEventListener("mouseenter", () => {
+            // まだテーブルが表示されていない（1体目ホバー時など）なら表示する
+            if (tableContainer.style.display === 'none' || tableContainer.style.display === '') {
+                tableContainer.style.display = 'block';
+                headerRow.innerHTML = "";
+                typeDBGenerate();
+            }
+            // 念のため古いプレビューがあれば消す
+            const existingPreview = resultBody.querySelector('.preview-row');
+            if (existingPreview) existingPreview.remove();
+            
+            addTypeRow(charData, true);
+        });
+
+        button.addEventListener("mouseleave", () => {
+            // マウスが離れたらプレビュー行を削除する
+            const existingPreview = resultBody.querySelector('.preview-row');
+            if (existingPreview) existingPreview.remove();
+        });
+
         card.appendChild(button);
 
         if (charData.link !== ""){
@@ -1098,65 +1143,58 @@ function typeDBGenerate() {
     });
 }
 
-function addTypeRow(characterObj) {
+function addTypeRow(characterObj, isPreview = false) {
     let t1 = characterObj.type1 ? characterObj.type1.trim() : "";
     let t2 = characterObj.type2 ? characterObj.type2.trim() : "";
 
-    // 両方空、もしくは「空白」の場合は何もしない
     if ((t1 === "" || t1 === "空白") && (t2 === "" || t2 === "空白")) {
         return;
     }
 
-    // 片方が空文字の場合の補完処理
     if (t1 === "") t1 = "空白";
     if (t2 === "") t2 = "空白";
 
-    // 新しい行（tr）を作成
     const newRow = document.createElement('tr');
+    
+    // プレビュー行の場合はクラスを付与
+    if (isPreview) {
+        newRow.className = 'preview-row';
+    }
 
-    // 1. 【追加】キャラクター名セル
+    // 1. キャラクター名セル
     const nameTd = document.createElement('td');
     nameTd.className = 'defense-type-label';
     const formText = characterObj.styleForm ? `（${characterObj.styleForm}）` : "";
     const levelText = characterObj.chosenLevel ? ` Lv.${characterObj.chosenLevel}` : "";
-    const fullNameText = characterObj.name + formText + levelText;
     
-    const rawLink = characterObj.link
+    // プレビュー時は名前の頭に「(プレビュー)」と付けると分かりやすいです（お好みで）
+    const prefix = isPreview ? "" : "";
+    const fullNameText = prefix + characterObj.name + formText + levelText;
     
-    if (characterObj.link != "") {
-        // リンクがある場合だけ、aタグ（リンク）を作成
+    if (characterObj.link != "" && !isPreview) { // プレビュー時はリンクにしない
         const linkAnchor = document.createElement('a');
         linkAnchor.textContent = fullNameText;
-        
         linkAnchor.href = characterObj.link;
-        
-        // 新しいタブで開く設定
         linkAnchor.target = "_blank";
         linkAnchor.rel = "noopener noreferrer";
-
-        // リンク用のスタイル調整
         linkAnchor.style.color = "#2c3e50";
         linkAnchor.style.textDecoration = "underline";
         linkAnchor.style.cursor = "pointer";
-
-        // セルの中にリンクを追加
         nameTd.appendChild(linkAnchor);
     } else {
-        // リンクがない場合は、テキストだけをそのままセルに追加
         nameTd.textContent = fullNameText;
     }
     newRow.appendChild(nameTd);
 
-    // 2. 【変更】タイプ1セル
+    // 2. タイプ1セル
     const t1Td = document.createElement('td');
-    t1Td.className = `type-${t1}`; // 背景色をつけるためのクラス（お好みで）
-    t1Td.style.color = t1 === "空白" ? "#333" : "white"; // 文字色調整
+    t1Td.className = `type-${t1}`;
+    t1Td.style.color = t1 === "空白" ? "#333" : "white";
     t1Td.textContent = t1;
     newRow.appendChild(t1Td);
 
-    // 3. 【変更】タイプ2セル
+    // 3. タイプ2セル
     const t2Td = document.createElement('td');
-    // タイプ1と同じ、または空白なら「-」と表示して見やすくする
     if (t2 === "空白" || t1 === t2) {
         t2Td.textContent = "-";
     } else {
@@ -1166,21 +1204,17 @@ function addTypeRow(characterObj) {
     }
     newRow.appendChild(t2Td);
 
-    // 4. 各攻撃タイプに対する倍率を計算してセルを追加
+    // 4. 各攻撃タイプに対する倍率を計算
     const attackTypes = typesList.filter(t => t !== "空白");
-
     attackTypes.forEach((atkType, index) => {
         const mult1 = typeChart[t1] ? typeChart[t1][index] : 1;
         const mult2 = typeChart[t2] ? typeChart[t2][index] : 1;
-        
-        // タイプ2が「空白」または「タイプ1と重複」の場合は、タイプ1の倍率のみを適用
         const finalMultiplier = (t2 === "空白" || t1 === t2) ? mult1 : mult1 * mult2;
 
         const td = document.createElement('td');
         td.textContent = finalMultiplier;
         td.setAttribute('data-type', atkType);
 
-        // 倍率に応じたCSSクラスの適用
         if (finalMultiplier === 4) td.className = 'damage-4';
         else if (finalMultiplier === 2) td.className = 'damage-2';
         else if (finalMultiplier === 1) td.className = 'damage-1';
@@ -1191,9 +1225,7 @@ function addTypeRow(characterObj) {
         newRow.appendChild(td);
     });
 
-    // tbodyに作成した行を追加
     resultBody.appendChild(newRow);
-
     updateFairyColumnVisibility();
 }
 
@@ -1349,7 +1381,7 @@ function resetToStart(){
     //document.getElementById("selectedList").style.display = "none";
     document.getElementById("resultDisplay").style.display = "none";
     document.getElementById("boostNotice").style.display = "none";
-    document.getElementById("resultTable").style.display = 'none';
+    tableContainer.style.display = 'none';
     document.getElementById("result").innerHTML = "";
     document.getElementById("seed").innerHTML = "";
     document.getElementById("round").innerHTML = "";
