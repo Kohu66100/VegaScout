@@ -81,9 +81,9 @@ window.customCsvData =`name,type1,type2,MinLevel,MaxLevel,generation,filters,cha
 フシギバナ,くさ,どく,52,55,初代,一般,御三家,,,https://w.atwiki.jp/altair1/pages/340.html
 リザードン,ほのお,ひこう,52,55,初代,一般,御三家,,,https://w.atwiki.jp/altair1/pages/343.html
 カメックス,みず,,52,55,初代,一般,御三家,,,https://w.atwiki.jp/altair1/pages/346.html
-バジリール,くさ,でんき,52,55,AS,一般,御三家,,,https://w.atwiki.jp/altair1/pages/349.html
-コマレオン,ほのお,じめん,52,55,AS,一般,御三家,,,https://w.atwiki.jp/altair1/pages/352.html
-バクソウオ,みず,ゴースト,52,55,AS,一般,御三家,,,https://w.atwiki.jp/altair1/pages/355.html
+バジリール,くさ,でんき,52,55,ベガ,一般,御三家,,,https://w.atwiki.jp/altair1/pages/349.html
+コマレオン,ほのお,じめん,52,55,ベガ,一般,御三家,,,https://w.atwiki.jp/altair1/pages/352.html
+バクソウオ,みず,ゴースト,52,55,ベガ,一般,御三家,,,https://w.atwiki.jp/altair1/pages/355.html
 チェキッド,あく,ノーマル,54,57,ベガ,一般,,,,https://w.atwiki.jp/altair1/pages/357.html
 チェキラス,あく,エスパー,54,57,ベガ,一般,,,,https://w.atwiki.jp/altair1/pages/358.html
 ララミンゴ,みず,ひこう,54,57,ベガ,一般,,,,https://w.atwiki.jp/altair1/pages/360.html
