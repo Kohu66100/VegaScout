@@ -152,7 +152,7 @@ select {
 #retryButton {
     background-color: #e67e22;
     box-shadow: 0 4px 0 #d35400;
-    display: block; /* ボタン同士がくっつかないようブロック化 */
+    display: block;
 }
 #retryButton:active {
     transform: translateY(4px);
@@ -282,6 +282,45 @@ select {
     text-shadow: 1px 1px 1px rgba(0,0,0,0.3);
     box-shadow: inset 0 -1px 2px rgba(0,0,0,0.2);
     z-index: 5;
+}
+
+/* ファクトリーモード用 */
+.factory-info {
+    width: 100%;
+    margin-top: 5px;
+    padding-top: 5px;
+    border-top: 1px dashed #ddd;
+    text-align: left;
+    font-size: 12px;
+    color: #4a5568;
+}
+.factory-label {
+    font-weight: bold;
+    color: #718096;
+    font-size: 11px;
+    text-transform: uppercase;
+    margin-top: 3px;
+}
+.factory-val {
+    font-size: 15px;
+    color: #2d3748;
+    margin-bottom: 5px;
+    white-space: nowrap;
+}
+.factory-skills {
+    padding: 4px;
+    border-radius: 4px;
+    margin-top: 4px;
+}
+.factory-skill {
+    font-size: 15px;
+    color: #2d3748;
+    border-bottom: 1px solid #e2e8f0;
+    padding: 3px 0;
+    white-space: nowrap;
+}
+.factory-skill:last-child {
+    border-bottom: none;
 }
 
 /* タイプカラー定義 */
@@ -480,7 +519,7 @@ table td:nth-child(3) {
 </head>
 <body>
 
-<h1>ベガスカウト ver0.6</h1>
+<h1>ベガスカウト ver0.7</h1>
 
 <div id="startArea">
     <input type="text" id="username" placeholder="名前を入力">
@@ -539,6 +578,7 @@ table td:nth-child(3) {
         <label class="option-label"><input type="checkbox" name="specialRules" value="typeUnique">タイプ重複禁止</label>
         <label class="option-label"><input type="checkbox" name="specialRules" value="Eviolite">しんかのきせき追加</label>
         <label class="option-label"><input type="checkbox" name="specialRules" value="levelVariance">レベル混沌モード</label>
+        <label class="option-label"><input type="checkbox" name="specialRules" value="factoryMode">ファクトリーモードβ</label>
     </div>
 </div>
 
@@ -662,6 +702,15 @@ table td:nth-child(3) {
 </div>
 </details>
 
+<details id="filterGuide">
+    <summary><strong>ファクトリーモードについて</strong></summary>
+    <div class="guideContent">
+    <p>特性/アイテム/技構成が決まった状態で提示されます。</p>
+    <p>性格と努力値は指定されていません。</p>
+    <p>同じ持ち物のキャラクターは提示されなくなります。</p>
+</div>
+</details>
+
 <script>
 let characterTable = [];
 let remainingCharacters = [];
@@ -674,6 +723,7 @@ let allowedfilterGlobal = [];
 let allowedGenerationGlobal = [];
 let selectedPatchGlobal = "本家";
 let currentSeed = 0;
+let selectedItems = new Set();
 
 const tableContainer = document.querySelector('.table-container');
 const submitBtn = document.getElementById('submitBtn');
@@ -735,9 +785,13 @@ async function startGame(){
     const radioPatch = document.querySelector('input[name="patchFilter"]:checked');
     selectedPatchGlobal = radioPatch ? radioPatch.value : "本家";
     
+    let factoryPath = ""
+    if (activeRules.includes("factoryMode")){
+        factoryPath = "ファクトリー"
+    }
     let targetScript = "charaDB/本家.js";
     if (selectedPatchGlobal !== "本家") {
-        targetScript = `charaDB/${selectedPatchGlobal}.js`;
+        targetScript = `charaDB/${selectedPatchGlobal}${factoryPath}.js`;
     }
 
     try {
@@ -769,6 +823,7 @@ async function startGame(){
 
     remainingCharacters = [...characterTable];
     selectedCharacters = [];
+    selectedItems.clear();
     round = 1;
     candidateCount = Number(document.getElementById("candidateCount").value);
     scoutCount = Number(document.getElementById("scoutCount").value);
@@ -786,7 +841,6 @@ async function startGame(){
     document.getElementById("filterArea").style.display = "none";
     document.getElementById("generationArea").style.display = "none";
     document.getElementById("optionArea").style.display = "none";
-    //document.getElementById("selectedList").style.display = "block";
     document.getElementById("boostNotice").style.display = "block";
     
     // リザルト表示をリセット
@@ -864,6 +918,16 @@ function showChoices(){
         }
     }
 
+    // --- 持ち物重複禁止ルールのフィルタリング処理 ---
+    if (activeRules.includes("factoryMode") && selectedItems.size > 0) {
+        currentPool = currentPool.filter(c => {
+            if (c.item && c.item.trim() !== "") {
+                return !selectedItems.has(c.item.trim());
+            }
+            return true; // 持ち物が設定されていないキャラは除外しない
+        });
+    }
+
     //世代による選別
     currentPool = currentPool.filter(c => {
         const charGenerations = c.generation ? c.generation.split('/') : ["一般"];
@@ -928,13 +992,27 @@ function showChoices(){
         }
     }
 
-    // 重み付けオブジェクトの作成
+    // 現在のプール内における、名前(name)ごとの出現回数をカウント
+    const nameCounts = {};
+    currentPool.forEach(c => {
+        if (c.name) {
+            nameCounts[c.name] = (nameCounts[c.name] || 0) + 1;
+        }
+    });
+
+    // 重み付けオブジェクトの作成（重複数で割る処理を追加）
     let pool = currentPool.map(c => {
         let weight = 1;
         const charFilters = c.characterRace ? c.characterRace.split('/') : [""];
         if (activeRules.includes("starter30x") && round === 1 && charFilters.includes("御三家")) {
             weight = 30;
         }
+
+        // 名前の重複がある場合、そのカウント数で元の重みを割る
+        if (c.name && nameCounts[c.name] > 1) {
+            weight = weight / nameCounts[c.name];
+        }
+
         return { data: c, weight: weight };
     });
 
@@ -983,6 +1061,7 @@ function showChoices(){
     if (activeRules.includes("typeUnique")) ruleNames.push("タイプ重複禁止");
     if (activeRules.includes("Eviolite")) ruleNames.push("輝石");
     if (activeRules.includes("levelVariance")) ruleNames.push("レベル混沌");
+    if (activeRules.includes("factoryMode")) ruleNames.push("ファクトリー");
     let ruleText = ruleNames.length > 0 ? ruleNames.join("＋") : "なし";
     let filterText = allowedfilterGlobal.length > 0 ? allowedfilterGlobal.join("、") : "なし";
     let generationText = allowedGenerationGlobal.length > 0 ? allowedGenerationGlobal.join("、") : "なし";
@@ -1049,6 +1128,46 @@ function showChoices(){
         });
         card.appendChild(typeContainer);
 
+        // --- 【追加機能】ファクトリーモード有効時の表示生成 ---
+        if (activeRules.includes("factoryMode")) {
+            const factoryDiv = document.createElement("div");
+            factoryDiv.className = "factory-info";
+
+            // 特性表示
+            const abLabel = document.createElement("div");
+            abLabel.className = "factory-label";
+            abLabel.textContent = "特性";
+            const abVal = document.createElement("div");
+            abVal.className = "factory-val";
+            abVal.textContent = charData.ability || "-";
+            factoryDiv.appendChild(abLabel);
+            factoryDiv.appendChild(abVal);
+
+            // 持ち物表示
+            const itemLabel = document.createElement("div");
+            itemLabel.className = "factory-label";
+            itemLabel.textContent = "持ち物";
+            const itemVal = document.createElement("div");
+            itemVal.className = "factory-val";
+            itemVal.textContent = charData.item || "-";
+            factoryDiv.appendChild(itemLabel);
+            factoryDiv.appendChild(itemVal);
+
+            const skillsContainer = document.createElement("div");
+            skillsContainer.className = "factory-skills";
+
+            [charData.skill1, charData.skill2, charData.skill3, charData.skill4].forEach(skill => {
+                if(skill && skill.trim() !== "") {
+                    const sDiv = document.createElement("div");
+                    sDiv.className = "factory-skill";
+                    sDiv.textContent = skill;
+                    skillsContainer.appendChild(sDiv);
+                }
+            });
+            factoryDiv.appendChild(skillsContainer);
+            card.appendChild(factoryDiv);
+        }
+
         const button = document.createElement("button");
         const levelText = charData.chosenLevel ? `<br>Lv.${charData.chosenLevel}` : "";
         button.innerHTML = charData.name + levelText;
@@ -1106,6 +1225,11 @@ function selectCharacter(characterObj){
         remainingCharacters = remainingCharacters.filter(c => {
             return !(c.styleForm && c.styleForm.trim() === "輝石");
         });
+    }
+    
+    // キャラクター選択時に持ち物を記録
+    if (characterObj.item && characterObj.item.trim() !== "") {
+        selectedItems.add(characterObj.item.trim());
     }
 
     updateSelectedList();
@@ -1246,10 +1370,8 @@ function updateFairyColumnVisibility() {
 function showResult(){
     document.getElementById("choices").innerHTML = "";
     document.getElementById("choices").style.display = "none";
-    //document.getElementById("selectedList").style.display = "none";
     document.getElementById("boostNotice").style.display = "none";
     document.getElementById("boostNotice").style.margin = "0";
-    
     document.getElementById("round").style.display = "none";
 
     document.getElementById("resultDisplay").style.display = "grid";
@@ -1302,6 +1424,43 @@ function showResult(){
         });
         card.appendChild(typeContainer);
 
+        // --- リザルト画面（結果画面）でもファクトリー情報を残す場合 ---
+        if (activeRules.includes("factoryMode")) {
+            const factoryDiv = document.createElement("div");
+            factoryDiv.className = "factory-info";
+
+            const abLabel = document.createElement("div");
+            abLabel.className = "factory-label";
+            abLabel.textContent = "特性";
+            const abVal = document.createElement("div");
+            abVal.className = "factory-val";
+            abVal.textContent = charData.ability || "-";
+            factoryDiv.appendChild(abLabel);
+            factoryDiv.appendChild(abVal);
+
+            const itemLabel = document.createElement("div");
+            itemLabel.className = "factory-label";
+            itemLabel.textContent = "持ち物";
+            const itemVal = document.createElement("div");
+            itemVal.className = "factory-val";
+            itemVal.textContent = charData.item || "-";
+            factoryDiv.appendChild(itemLabel);
+            factoryDiv.appendChild(itemVal);
+
+            const skillsContainer = document.createElement("div");
+            skillsContainer.className = "factory-skills";
+            [charData.skill1, charData.skill2, charData.skill3, charData.skill4].forEach(skill => {
+                if(skill && skill.trim() !== "") {
+                    const sDiv = document.createElement("div");
+                    sDiv.className = "factory-skill";
+                    sDiv.textContent = skill;
+                    skillsContainer.appendChild(sDiv);
+                }
+            });
+            factoryDiv.appendChild(skillsContainer);
+            card.appendChild(factoryDiv);
+        }
+
         const nameTag = document.createElement("div");
         nameTag.className = "chara-name-tag";
         const levelText = charData.chosenLevel ? `<br>Lv.${charData.chosenLevel}` : "";
@@ -1317,15 +1476,8 @@ function showResult(){
             link.textContent = "wiki ↗";
             card.appendChild(link);
         }
-
         resultDisplay.appendChild(card);
     });
-
-    const listHtml = selectedCharacters.map((char, index) => {
-        const formSuffix = char.styleForm ? `（${char.styleForm}）` : "";
-        const levelSuffix = char.chosenLevel ? ` Lv.${char.chosenLevel}` : "";
-        return `<div class="selected-item" style="margin: 4px 0;">${index + 1}. ${char.name}${formSuffix}${levelSuffix}</div>`;
-    }).join("");
 
     document.getElementById("result").innerHTML = `
         <button id="copyButton">結果をコピー</button>
