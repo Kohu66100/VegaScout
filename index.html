@@ -836,11 +836,11 @@ async function startGame(){
             if (window.customCsvData) {
                 skillTable = parseCSV(window.customCsvData);
             } else {
-                alert("データが見つかりませんでした。");
+                //alert("データが見つかりませんでした。");
             }
 
         } catch (error) {
-            alert("エラーが発生しました: " + error.message);
+            //alert("エラーが発生しました: " + error.message);
         }
     }
 
@@ -1087,7 +1087,8 @@ function showChoices(){
         }
 
         chosenCandidates.push(charDataCopy);
-        pool.splice(selectedIndex, 1);
+        const chosenName = charDataCopy.name;
+        pool = pool.filter(item => item.data.name !== chosenName);
     }
 
     let ruleNames = [];
