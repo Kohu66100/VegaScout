@@ -176,6 +176,7 @@ select {
 
 #resultDisplay {
     display: grid;
+    justify-content: center;
     grid-template-columns: repeat(6, 1fr);
     gap: 15px;
     max-width: 900px;
@@ -189,16 +190,12 @@ select {
     background: white;
     border-radius: 12px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-    width: 120px;
+    width: 130px;
     padding: 15px;
     display: flex;
     flex-direction: column;
     align-items: center;
     transition: all 0.2s;
-}
-
-#resultDisplay .chara-card {
-    width: auto;
 }
 
 #choices .chara-card:hover {
@@ -301,26 +298,47 @@ select {
     text-transform: uppercase;
     margin-top: 3px;
 }
-.factory-val {
-    font-size: 15px;
-    color: #2d3748;
+.factory-val-container {
+    display: flex;
+    align-items: center;
+    gap: 4px;
     margin-bottom: 5px;
+}
+.factory-val {
+    font-size: 14px;
+    color: #2d3748;
     white-space: nowrap;
+    text-overflow: ellipsis;
 }
 .factory-skills {
-    padding: 4px;
+    padding: 0px;
     border-radius: 4px;
     margin-top: 4px;
+}
+.factory-skill-container {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    border-bottom: 1px solid #e2e8f0;
+    padding: 3px 0;
+}
+.factory-skill-container:last-child {
+    border-bottom: none;
 }
 .factory-skill {
     font-size: 15px;
     color: #2d3748;
-    border-bottom: 1px solid #e2e8f0;
-    padding: 3px 0;
     white-space: nowrap;
+    text-overflow: ellipsis;
 }
 .factory-skill:last-child {
     border-bottom: none;
+}
+.factory-icon {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+    flex-shrink: 0;
 }
 
 /* タイプカラー定義 */
@@ -519,7 +537,7 @@ table td:nth-child(3) {
 </head>
 <body>
 
-<h1>ベガスカウト ver0.7</h1>
+<h1>ベガスカウト ver0.8</h1>
 
 <div id="startArea">
     <input type="text" id="username" placeholder="名前を入力">
@@ -724,6 +742,7 @@ let allowedGenerationGlobal = [];
 let selectedPatchGlobal = "本家";
 let currentSeed = 0;
 let selectedItems = new Set();
+let skillTable = [];
 
 const tableContainer = document.querySelector('.table-container');
 const submitBtn = document.getElementById('submitBtn');
@@ -807,6 +826,22 @@ async function startGame(){
     } catch (error) {
         alert("エラーが発生しました: " + error.message);
         return; // エラー時はここで処理をストップ
+    }
+    
+    if (activeRules.includes("factoryMode")){
+        targetScript = `charaDB/${selectedPatchGlobal}技DB.js`;
+        try {
+            await loadScript(targetScript);
+
+            if (window.customCsvData) {
+                skillTable = parseCSV(window.customCsvData);
+            } else {
+                alert("データが見つかりませんでした。");
+            }
+
+        } catch (error) {
+            alert("エラーが発生しました: " + error.message);
+        }
     }
 
     // --- selectedPatchGlobal に応じたタイプ相性表の動的変更 ---
@@ -1139,6 +1174,7 @@ function showChoices(){
             abLabel.textContent = "特性";
             const abVal = document.createElement("div");
             abVal.className = "factory-val";
+            abVal.style.marginBottom = "5px"; // 簡易的な余白
             abVal.textContent = charData.ability || "-";
             factoryDiv.appendChild(abLabel);
             factoryDiv.appendChild(abVal);
@@ -1147,21 +1183,56 @@ function showChoices(){
             const itemLabel = document.createElement("div");
             itemLabel.className = "factory-label";
             itemLabel.textContent = "持ち物";
+            factoryDiv.appendChild(itemLabel);
+
+            const itemContainer = document.createElement("div");
+            itemContainer.className = "factory-val-container";
+
+            // 持ち物アイコンの生成
+            if (charData.item && charData.item.trim() !== "") {
+                const itemIcon = document.createElement("img");
+                itemIcon.className = "factory-icon";
+                itemIcon.src = `images/item/${charData.item.trim()}.png`;
+                itemIcon.alt = charData.item;
+                itemIcon.onerror = function() {
+                    this.style.display = "none";
+                };
+                itemContainer.appendChild(itemIcon);
+            }
+
             const itemVal = document.createElement("div");
             itemVal.className = "factory-val";
             itemVal.textContent = charData.item || "-";
-            factoryDiv.appendChild(itemLabel);
-            factoryDiv.appendChild(itemVal);
+            itemContainer.appendChild(itemVal);
+            factoryDiv.appendChild(itemContainer);
 
             const skillsContainer = document.createElement("div");
             skillsContainer.className = "factory-skills";
 
-            [charData.skill1, charData.skill2, charData.skill3, charData.skill4].forEach(skill => {
-                if(skill && skill.trim() !== "") {
+            const skillsData = [
+                { name: charData.skill1 },
+                { name: charData.skill2 },
+                { name: charData.skill3 },
+                { name: charData.skill4 }
+            ];
+
+            skillsData.forEach(skillObj => {
+                if (skillObj.name && skillObj.name.trim() !== "") {
+                    const sContainer = document.createElement("div");
+                    sContainer.className = "factory-skill-container";
+
+                    const skillType = getSkillType(skillObj.name);
+                    if (skillType !== "unknown") {
+                        const skillBadge = createTypeBadge(skillType);
+                        sContainer.appendChild(skillBadge);
+                    }
+
                     const sDiv = document.createElement("div");
                     sDiv.className = "factory-skill";
-                    sDiv.textContent = skill;
-                    skillsContainer.appendChild(sDiv);
+                    sDiv.textContent = skillObj.name;
+                    sContainer.appendChild(sDiv);
+                    
+                    skillsContainer.appendChild(sContainer);
                 }
             });
             factoryDiv.appendChild(skillsContainer);
@@ -1429,32 +1500,71 @@ function showResult(){
             const factoryDiv = document.createElement("div");
             factoryDiv.className = "factory-info";
 
+            // 特性表示
             const abLabel = document.createElement("div");
             abLabel.className = "factory-label";
             abLabel.textContent = "特性";
             const abVal = document.createElement("div");
             abVal.className = "factory-val";
+            abVal.style.marginBottom = "5px"; // 簡易的な余白
             abVal.textContent = charData.ability || "-";
             factoryDiv.appendChild(abLabel);
             factoryDiv.appendChild(abVal);
 
+            // 持ち物表示
             const itemLabel = document.createElement("div");
             itemLabel.className = "factory-label";
             itemLabel.textContent = "持ち物";
+            factoryDiv.appendChild(itemLabel);
+
+            const itemContainer = document.createElement("div");
+            itemContainer.className = "factory-val-container";
+
+            // 持ち物アイコンの生成
+            if (charData.item && charData.item.trim() !== "") {
+                const itemIcon = document.createElement("img");
+                itemIcon.className = "factory-icon";
+                itemIcon.src = `images/item/${charData.item.trim()}.png`;
+                itemIcon.alt = charData.item;
+                itemIcon.onerror = function() {
+                    this.style.display = "none";
+                };
+                itemContainer.appendChild(itemIcon);
+            }
+
             const itemVal = document.createElement("div");
             itemVal.className = "factory-val";
             itemVal.textContent = charData.item || "-";
-            factoryDiv.appendChild(itemLabel);
-            factoryDiv.appendChild(itemVal);
+            itemContainer.appendChild(itemVal);
+            factoryDiv.appendChild(itemContainer);
 
             const skillsContainer = document.createElement("div");
             skillsContainer.className = "factory-skills";
-            [charData.skill1, charData.skill2, charData.skill3, charData.skill4].forEach(skill => {
-                if(skill && skill.trim() !== "") {
+
+            const skillsData = [
+                { name: charData.skill1 },
+                { name: charData.skill2 },
+                { name: charData.skill3 },
+                { name: charData.skill4 }
+            ];
+
+            skillsData.forEach(skillObj => {
+                if (skillObj.name && skillObj.name.trim() !== "") {
+                    const sContainer = document.createElement("div");
+                    sContainer.className = "factory-skill-container";
+
+                    const skillType = getSkillType(skillObj.name);
+                    if (skillType !== "unknown") {
+                        const skillBadge = createTypeBadge(skillType);
+                        sContainer.appendChild(skillBadge);
+                    }
+
                     const sDiv = document.createElement("div");
                     sDiv.className = "factory-skill";
-                    sDiv.textContent = skill;
-                    skillsContainer.appendChild(sDiv);
+                    sDiv.textContent = skillObj.name;
+                    sContainer.appendChild(sDiv);
+                    
+                    skillsContainer.appendChild(sContainer);
                 }
             });
             factoryDiv.appendChild(skillsContainer);
@@ -1486,6 +1596,40 @@ function showResult(){
     
     document.getElementById("copyButton").onclick = copyResult;
     document.getElementById("retryButton").onclick = resetToStart;
+}
+
+function getSkillType(skillName) {
+    if (!skillName) return "unknown";
+    
+    // skillTableからnameが一致するレコードを探す
+    const skill = skillTable.find(s => s.name === skillName.trim());
+    
+    // 見つかればそのtypeを、見つからなければ "unknown" を返す
+    return skill ? skill.type.trim() : "unknown";
+}
+
+function createTypeBadge(typeName) {
+    const badge = document.createElement("span");
+    // 既存のタイプカラーCSSクラス（.type-ほのお 等）を適用
+    badge.className = `type-badge type-${typeName}`;
+    
+    // 文字は表示しないので空にする
+    badge.textContent = ""; 
+    
+    // 見た目を丸いドットに変更するためのスタイル指定
+    badge.style.display = "inline-block";
+    badge.style.width = "12px";          // ドットの幅
+    badge.style.height = "12px";         // ドットの高さ
+    badge.style.borderRadius = "50%";    // 完全な正円にする
+    badge.style.marginRight = "1px";     // 技名との間の余白
+    badge.style.verticalAlign = "middle"; // テキストの高さに合わせる
+    
+    // 既存のCSS（box-shadowやtext-shadowなど）による歪みをリセット・微調整
+    badge.style.boxShadow = "0 1px 3px rgba(0,0,0,0.3)"; 
+    badge.style.padding = "0";
+    badge.style.minWidth = "auto";
+    
+    return badge;
 }
 
 function copyResult(){
