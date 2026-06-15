@@ -1,14 +1,16 @@
 window.customCsvData =`name,type1,type2,MinLevel,MaxLevel,generation,filters,characterRace,styleForm,imgFile,link,ability,item,skill1,skill2,skill3,skill4
 デモリガン,あく,フェアリー,47,50,PD,600族,,,,https://w.atwiki.jp/altair1/pages/963.html,マルチスケイル,ラムのみ,まおうのいかり,マジカルブレイク,じしん,つるぎのまい
 カソーダン,でんき,じめん,47,50,PD,600族,,,,https://w.atwiki.jp/altair1/pages/966.html,すなのちから,とつげきチョッキ,ガイアキューブ,パワーボルテージ,グラベルブレス,ボルトチェンジ
+デモリガン,あく,フェアリー,47,50,PD,600族,,,,https://w.atwiki.jp/altair1/pages/963.html,マルチスケイル,たべのこし,まおうのいかり,じしん,どくどく,つきのひかり
+カソーダン,でんき,じめん,47,50,PD,600族,,,,https://w.atwiki.jp/altair1/pages/966.html,すなのちから,オボンのみ,だいちのいかり,パワーボルテージ,でんじは,ボルトチェンジ
 ラブリン,みず,ノーマル,49,52,ベガ,一般,,,,https://w.atwiki.jp/altair1/pages/950.html,すいすい,しんぴのしずく,しおふき,ハイドロポンプ,アイスバーン,おおあくび
 エアームド,はがね,ひこう,50,53,金銀,一般,,輝石,,https://w.atwiki.jp/altair1/pages/765.html,がんじょう,しんかのきせき,どくどく,はねやすめ,まきびし,ふきとばし
 エアメイル,はがね,ひこう,50,53,PD,一般,,,,https://w.atwiki.jp/altair1/pages/766.html,がんじょう,オッカのみ,メタルブラスト,ジェットシュート,ドリルライナー,つるぎのまい
 ドルマイン,でんき,,50,53,AS,一般,,,,https://w.atwiki.jp/altair1/pages/858.html,ぼうおん,シュカのみ,ほうでん,じりょくせん,ボルトチェンジ,かいでんぱ
 アメリシア,みず,,50,53,ベガ,一般,,,,https://w.atwiki.jp/altair1/pages/874.html,あめふらし,しめったいわ,ウェザーボール,アイスバーン,どくどく,じこさいせい
-シルドール,エスパー,フェアリー,50,53,AS,一般,,,,https://w.atwiki.jp/altair1/pages/932.html,トレース,たべのこし,バリアアタック,バリア―,おにび,じこさいせい
+シルドール,エスパー,フェアリー,50,53,AS,一般,,,,https://w.atwiki.jp/altair1/pages/932.html,トレース,たべのこし,バリアアタック,バリアー,おにび,じこさいせい
 プリモード,こおり,フェアリー,51,54,PD,一般,,,,https://w.atwiki.jp/altair1/pages/727.html,しぜんかいふく,いのちのたま,アイスバーン,ひかりのはどう,こごえるかぜ,ぜったいれいど
-リーフィス,くさ,みず,51,54,AS,一般,,,,https://w.atwiki.jp/altair1/pages/764.html,よびみず,たべのこし,ギガドレイン,ハイドロポンプ,アイスバーン,からをやぶる
+リーフィス,くさ,みず,51,54,AS,一般,,,,https://w.atwiki.jp/altair1/pages/764.html,よびみず,しろいハーブ,ギガドレイン,ハイドロポンプ,アイスバーン,からをやぶる
 ヤミクラゲ,みず,あく,51,54,AS,一般,,,,https://w.atwiki.jp/altair1/pages/853.html,めんえき,くろいメガネ,ダークリゾルブ,だいこうずい,アイスバーン,アシッドボム
 ハサーガ,じめん,,51,54,ベガ,一般,,,,https://w.atwiki.jp/altair1/pages/872.html,じしんかじょう,じめんのジュエル,じしん,グランボールダ,でんこうせっか,からをやぶる
 カンカーン,ほのお,,51,54,ベガ,一般,,,,https://w.atwiki.jp/altair1/pages/876.html,ひでり,あついいわ,フレアドライブ,ニトロチャージ,がんせきだん,えんしょう
@@ -41,7 +43,7 @@ window.customCsvData =`name,type1,type2,MinLevel,MaxLevel,generation,filters,cha
 フルティウス,くさ,ドラゴン,53,56,PD,一般,,,,https://w.atwiki.jp/altair1/pages/771.html,ようりょくそ,ドラゴンジュエル,ドラゴンビート,だいせいちょう,すなかぜ,やどりぎのタネ
 テペトラー,みず,かくとう,53,56,AS,一般,,,,https://w.atwiki.jp/altair1/pages/782.html,すいすい,みずのジュエル,だいこうずい,しゅうきほう,アイスバーン,ねこだまし
 ニートン,ゴースト,,53,56,AS,一般,,,,https://w.atwiki.jp/altair1/pages/786.html,そうしょく,きょうせいギプス,イカサマ,すりかえ,おおあくび,なまける
-スナンクス,じめん,,53,56,PD,一般,,,,https://w.atwiki.jp/altair1/pages/788.html,すなおこし,たべのこし,だいちのいかり,パワージェム,あくび,トリックルーム
+スナンクス,じめん,,53,56,PD,一般,,,,https://w.atwiki.jp/altair1/pages/788.html,すなおこし,たべのこし,だいちのいかり,グラベルブレス,あくび,トリックルーム
 ボルボット,はがね,,53,56,PD,一般,,,,https://w.atwiki.jp/altair1/pages/793.html,ダウンロード,シュカのみ,メタルニッパー,エレキインパクト,ボルトチェンジ,でんじは
 プテリクス,いわ,ひこう,53,56,AS,一般,,,,https://w.atwiki.jp/altair1/pages/802.html,いかく,ひこうのジュエル,ブレイブバード,もろはのずつき,インファイト,りゅうのまい
 パンプッチ,くさ,フェアリー,53,56,ベガ,一般,,,,https://w.atwiki.jp/altair1/pages/826.html,ふゆう,たべのこし,ムーンフォース,ギガドレイン,おにび,やどりぎのタネ

@@ -6,10 +6,7 @@ window.customCsvData =`name,type1,type2,MinLevel,MaxLevel,generation,filters,cha
 ルカリオ,かくとう,はがね,52,55,DP,一般,,,,https://w.atwiki.jp/altair1/pages/171.html,こんじょう,アップグレード,インファイト,しんそく,くらいつく,つるぎのまい
 トゲキッス,ノーマル,ひこう,50,53,DP,一般,,,,https://w.atwiki.jp/altair1/pages/207.html,てんのめぐみ,ラムのみ,エアスラッシュ,ねっぷう,アクアボルト,わるだくみ
 フローリア,こおり,,52,55,AS,一般,,,,https://w.atwiki.jp/altair1/pages/210.html,クリアボディ,きあいのタスキ,アイスバーン,ハイドロポンプ,エナジーボール,おにび
-ゴリチュウ,でんき,かくとう,55,58,AS,一般,,,,https://w.atwiki.jp/altair1/pages/213.html,せいでんき,きあいのハチマキ,ボルテッカー,ばくれつパンチ,つららおとし,バレットパンチ
 セラーナ,くさ,,56,59,AS,一般,,,,https://w.atwiki.jp/altair1/pages/225.html,ようりょくそ,きあいのタスキ,だいせいちょう,ハイドロポンプ,バグノイズ,ちょうのまい
-ペガーン,エスパー,ひこう,55,58,AS,一般,,,,https://w.atwiki.jp/altair1/pages/232.html,しぜんかいふく,たべのこし,ハリケーン,でんじは,めいそう,じこさいせい
-ユニサス,エスパー,はがね,55,58,AS,一般,,,,https://w.atwiki.jp/altair1/pages/231.html,いかく,ひかりのこな,アイアンヘッド,いわなだれ,でんじは,じこさいせい
 メタゲラス,はがね,じめん,52,55,AS,一般,,,,https://w.atwiki.jp/altair1/pages/77.html,いかく,オボンのみ,じしん,ストーンエッジ,ギガスパーク,じわれ
 ディザソル,あく,,52,55,AS,一般,,,,https://w.atwiki.jp/altair1/pages/239.html,プレッシャー,アップグレード,ぶちこわす,しんそく,いかりのほのお,つるぎのまい
 バンギラス,いわ,あく,47,50,金銀,600族,,,,https://w.atwiki.jp/altair1/pages/312.html,すなおこし,せんせいのツメ,ぶちこわす,ストーンエッジ,じしん,でんじは
