@@ -172,6 +172,7 @@ select {
 #round {
     font-weight: bold;
     margin-bottom: 10px;
+    display: flex;
 }
 
 #resultDisplay {
@@ -387,19 +388,6 @@ select {
     color: #e67e22;
 }
 
-/* 選択済みリスト */
-#selectedList {
-    margin: 20px auto;
-    padding: 20px;
-    background: #eef2f7;
-    border: 2px dashed #cbd5e1;
-    border-radius: 10px;
-    max-width: 400px;
-    min-height: 80px;
-    text-align: left;
-    display: none;
-}
-
 #seed {
     font-weight: bold;
     color: #7f8c8d;
@@ -533,6 +521,16 @@ table td:nth-child(3) {
 .damage-025 { background-color: #4da6ff; color: white; font-weight: bold; }
 .damage-0 { background-color: #aaaaaa; color: white; }
 
+#scoutingResultDisplay {
+    display: grid;
+    justify-content: center;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 15px;
+    max-width: 900px;
+    margin: 15px auto 5px auto;
+    padding: 10px;
+}
+
 </style>
 </head>
 <body>
@@ -629,14 +627,18 @@ table td:nth-child(3) {
 </div>
 
 <p id="seed"></p>
-<p id="round"></p>
+
+<div style="display: flex; justify-content: space-between; ">
+  <div style="flex: 1;"></div>
+  <div id="round" style="flex: 1;"></div>
+  <div id="poolCount" style="flex: 1; text-align: right; color: #8c8c8c;"></div>
+</div>
 
 <div id="choices"></div>
 <p id="boostNotice"></p>
 
 <div id="resultDisplay"></div>
 <div id="result"></div>
-<div id="selectedList"></div>
 
 <div class="table-container">
     <table id="resultTable">
@@ -647,6 +649,8 @@ table td:nth-child(3) {
         </tbody>
     </table>
 </div>
+
+<div id="scoutingResultDisplay"></div>
 
 <div id="description">
     <h2>説明</h2>
@@ -743,6 +747,7 @@ let selectedPatchGlobal = "本家";
 let currentSeed = 0;
 let selectedItems = new Set();
 let skillTable = [];
+let characterSpriteFolder = "character"
 
 const tableContainer = document.querySelector('.table-container');
 const submitBtn = document.getElementById('submitBtn');
@@ -808,10 +813,7 @@ async function startGame(){
     if (activeRules.includes("factoryMode")){
         factoryPath = "ファクトリー"
     }
-    let targetScript = "charaDB/本家.js";
-    if (selectedPatchGlobal !== "本家") {
-        targetScript = `charaDB/${selectedPatchGlobal}${factoryPath}.js`;
-    }
+    let targetScript = `charaDB/${selectedPatchGlobal}${factoryPath}.js`;
 
     try {
         await loadScript(targetScript);
@@ -840,7 +842,9 @@ async function startGame(){
             }
 
         } catch (error) {
-            //alert("エラーが発生しました: " + error.message);
+            targetScript = `charaDB/本家技DB.js`;
+            await loadScript(targetScript);
+            skillTable = parseCSV(window.customCsvData);
         }
     }
 
@@ -855,6 +859,8 @@ async function startGame(){
             typeChart["はがね"][15] = 1.0; // あくの倍率を 0.5 → 1.0 に変更
         }
     }
+
+    characterSpriteFolder = selectedPatchGlobal;
 
     remainingCharacters = [...characterTable];
     selectedCharacters = [];
@@ -892,7 +898,6 @@ async function startGame(){
         typeDBGenerate();
     }
 
-    updateSelectedList();
     showChoices();
     updateFairyColumnVisibility();
 }
@@ -1111,179 +1116,20 @@ function showChoices(){
     `;
     
     document.getElementById("round").style.display = "block";
+    document.getElementById("poolCount").style.display = "block";
     document.getElementById("round").textContent = `${round} / ${scoutCount}回目`;
+    document.getElementById("poolCount").textContent = `候補数：${currentPool.length}`;
 
     const choicesDiv = document.getElementById("choices");
     choicesDiv.style.display = "flex";
     choicesDiv.innerHTML = "";
 
     chosenCandidates.forEach(charData => {
-        const card = document.createElement("div");
-        card.className = "chara-card";
-
-        // 画像とアイコンを内包するコンテナを生成
-        const imgContainer = document.createElement("div");
-        imgContainer.className = "img-container";
-
-        //キャラクター画像ファイル
-        const img = document.createElement("img");
-        img.className = "chara-img";
-        if (charData.imgFile && charData.imgFile.trim() !== "") {
-            img.src = `images/${selectedPatchGlobal}/${charData.imgFile}.png`;
-        } else {
-            img.src = `images/${selectedPatchGlobal}/${charData.name}.png`;
-        }
-        img.alt = charData.name;
-        img.onerror = function() {
-            img.src = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
-        };
-        imgContainer.appendChild(img);
-        
-        if (charData.styleForm) {
-            const icon = document.createElement("img");
-            icon.className = "style-icon";
-            icon.src = `images/icon/${charData.styleForm}.png`;
-            icon.alt = charData.styleForm;
-            icon.onerror = function() {
-                icon.src = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
-            }
-            imgContainer.appendChild(icon);
-        }
-
-        card.appendChild(imgContainer);
-
-        const typeContainer = document.createElement("div");
-        typeContainer.className = "type-container";
-        [charData.type1, charData.type2].forEach(type => {
-            if (type && type.trim() !== "") {
-                const badge = document.createElement("span");
-                badge.className = `type-badge type-${type}`;
-                badge.textContent = type;
-                typeContainer.appendChild(badge);
-            }
-        });
-        card.appendChild(typeContainer);
-
-        // --- 【追加機能】ファクトリーモード有効時の表示生成 ---
-        if (activeRules.includes("factoryMode")) {
-            const factoryDiv = document.createElement("div");
-            factoryDiv.className = "factory-info";
-
-            // 特性表示
-            const abLabel = document.createElement("div");
-            abLabel.className = "factory-label";
-            abLabel.textContent = "特性";
-            const abVal = document.createElement("div");
-            abVal.className = "factory-val";
-            abVal.style.marginBottom = "5px"; // 簡易的な余白
-            abVal.textContent = charData.ability || "-";
-            factoryDiv.appendChild(abLabel);
-            factoryDiv.appendChild(abVal);
-
-            // 持ち物表示
-            const itemLabel = document.createElement("div");
-            itemLabel.className = "factory-label";
-            itemLabel.textContent = "持ち物";
-            factoryDiv.appendChild(itemLabel);
-
-            const itemContainer = document.createElement("div");
-            itemContainer.className = "factory-val-container";
-
-            // 持ち物アイコンの生成
-            if (charData.item && charData.item.trim() !== "") {
-                const itemIcon = document.createElement("img");
-                itemIcon.className = "factory-icon";
-                itemIcon.src = `images/item/${charData.item.trim()}.png`;
-                itemIcon.alt = charData.item;
-                itemIcon.onerror = function() {
-                    this.style.display = "none";
-                };
-                itemContainer.appendChild(itemIcon);
-            }
-
-            const itemVal = document.createElement("div");
-            itemVal.className = "factory-val";
-            itemVal.textContent = charData.item || "-";
-            itemContainer.appendChild(itemVal);
-            factoryDiv.appendChild(itemContainer);
-
-            const skillsContainer = document.createElement("div");
-            skillsContainer.className = "factory-skills";
-
-            const skillsData = [
-                { name: charData.skill1 },
-                { name: charData.skill2 },
-                { name: charData.skill3 },
-                { name: charData.skill4 }
-            ];
-
-            skillsData.forEach(skillObj => {
-                if (skillObj.name && skillObj.name.trim() !== "") {
-                    const sContainer = document.createElement("div");
-                    sContainer.className = "factory-skill-container";
-
-                    const skillType = getSkillType(skillObj.name);
-                    if (skillType !== "unknown") {
-                        const skillBadge = createTypeBadge(skillType);
-                        sContainer.appendChild(skillBadge);
-                    }
-
-                    const sDiv = document.createElement("div");
-                    sDiv.className = "factory-skill";
-                    sDiv.textContent = skillObj.name;
-                    sContainer.appendChild(sDiv);
-                    
-                    skillsContainer.appendChild(sContainer);
-                }
-            });
-            factoryDiv.appendChild(skillsContainer);
-            card.appendChild(factoryDiv);
-        }
-
-        const button = document.createElement("button");
-        const levelText = charData.chosenLevel ? `<br>Lv.${charData.chosenLevel}` : "";
-        button.innerHTML = charData.name + levelText;
-        button.onclick = () => {
-            // 確定クリックされたら残っているプレビュー行を消去する
-            const existingPreview = resultBody.querySelector('.preview-row');
-            if (existingPreview) existingPreview.remove();
-            selectCharacter(charData);
-        };
-
-        button.addEventListener("mouseenter", () => {
-            // まだテーブルが表示されていない（1体目ホバー時など）なら表示する
-            if (tableContainer.style.display === 'none' || tableContainer.style.display === '') {
-                tableContainer.style.display = 'block';
-                headerRow.innerHTML = "";
-                typeDBGenerate();
-            }
-            // 念のため古いプレビューがあれば消す
-            const existingPreview = resultBody.querySelector('.preview-row');
-            if (existingPreview) existingPreview.remove();
-            
-            addTypeRow(charData, true);
-        });
-
-        button.addEventListener("mouseleave", () => {
-            // マウスが離れたらプレビュー行を削除する
-            const existingPreview = resultBody.querySelector('.preview-row');
-            if (existingPreview) existingPreview.remove();
-        });
-
-        card.appendChild(button);
-
-        if (charData.link !== ""){
-            const link = document.createElement("a");
-            link.className = "chara-link";
-            if (charData.link) link.href = charData.link;
-            link.target = "_blank";
-            link.rel = "noopener noreferrer";
-            link.textContent = "wiki ↗";
-            card.appendChild(link);
-        }
-        
+        // 共通関数を 'choice' モードで呼び出す
+        const card = createCharacterCard(charData, 'choice');
         choicesDiv.appendChild(card);
     });
+    updateScoutingCardDisplay();
 }
 
 function selectCharacter(characterObj){
@@ -1304,7 +1150,6 @@ function selectCharacter(characterObj){
         selectedItems.add(characterObj.item.trim());
     }
 
-    updateSelectedList();
     addTypeRow(characterObj);
 
     if(round >= scoutCount){
@@ -1445,149 +1290,18 @@ function showResult(){
     document.getElementById("boostNotice").style.display = "none";
     document.getElementById("boostNotice").style.margin = "0";
     document.getElementById("round").style.display = "none";
+    document.getElementById("poolCount").style.display = "none";
 
+    document.getElementById("scoutingResultDisplay").innerHTML = ""; 
     document.getElementById("resultDisplay").style.display = "grid";
-    const resultDisplay = document.getElementById("resultDisplay");
-    resultDisplay.innerHTML = "";
 
-    selectedCharacters.forEach(charData => {
-        const card = document.createElement("div");
-        card.className = "chara-card";
+    const resultDiv = document.getElementById("resultDisplay");
+    resultDiv.innerHTML = ""; // 一旦クリア
 
-        const imgContainer = document.createElement("div");
-        imgContainer.className = "img-container";
-
-        //キャラクター画像ファイル
-        const img = document.createElement("img");
-        img.className = "chara-img";
-        if (charData.imgFile && charData.imgFile.trim() !== "") {
-            img.src = `images/${selectedPatchGlobal}/${charData.imgFile}.png`;
-        } else {
-            img.src = `images/${selectedPatchGlobal}/${charData.name}.png`;
-        }
-        img.alt = charData.name;
-        img.onerror = function() {
-            img.src = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
-        };
-        imgContainer.appendChild(img);
-        
-        if (charData.styleForm) {
-            const icon = document.createElement("img");
-            icon.className = "style-icon";
-            icon.src = `images/icon/${charData.styleForm}.png`;
-            icon.alt = charData.styleForm;
-            icon.onerror = function() {
-                icon.src = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
-            };
-            imgContainer.appendChild(icon);
-        }
-
-        card.appendChild(imgContainer);
-
-        const typeContainer = document.createElement("div");
-        typeContainer.className = "type-container";
-        [charData.type1, charData.type2].forEach(type => {
-            if (type && type.trim() !== "") {
-                const badge = document.createElement("span");
-                badge.className = `type-badge type-${type}`;
-                badge.textContent = type;
-                typeContainer.appendChild(badge);
-            }
-        });
-        card.appendChild(typeContainer);
-
-        // --- リザルト画面（結果画面）でもファクトリー情報を残す場合 ---
-        if (activeRules.includes("factoryMode")) {
-            const factoryDiv = document.createElement("div");
-            factoryDiv.className = "factory-info";
-
-            // 特性表示
-            const abLabel = document.createElement("div");
-            abLabel.className = "factory-label";
-            abLabel.textContent = "特性";
-            const abVal = document.createElement("div");
-            abVal.className = "factory-val";
-            abVal.style.marginBottom = "5px"; // 簡易的な余白
-            abVal.textContent = charData.ability || "-";
-            factoryDiv.appendChild(abLabel);
-            factoryDiv.appendChild(abVal);
-
-            // 持ち物表示
-            const itemLabel = document.createElement("div");
-            itemLabel.className = "factory-label";
-            itemLabel.textContent = "持ち物";
-            factoryDiv.appendChild(itemLabel);
-
-            const itemContainer = document.createElement("div");
-            itemContainer.className = "factory-val-container";
-
-            // 持ち物アイコンの生成
-            if (charData.item && charData.item.trim() !== "") {
-                const itemIcon = document.createElement("img");
-                itemIcon.className = "factory-icon";
-                itemIcon.src = `images/item/${charData.item.trim()}.png`;
-                itemIcon.alt = charData.item;
-                itemIcon.onerror = function() {
-                    this.style.display = "none";
-                };
-                itemContainer.appendChild(itemIcon);
-            }
-
-            const itemVal = document.createElement("div");
-            itemVal.className = "factory-val";
-            itemVal.textContent = charData.item || "-";
-            itemContainer.appendChild(itemVal);
-            factoryDiv.appendChild(itemContainer);
-
-            const skillsContainer = document.createElement("div");
-            skillsContainer.className = "factory-skills";
-
-            const skillsData = [
-                { name: charData.skill1 },
-                { name: charData.skill2 },
-                { name: charData.skill3 },
-                { name: charData.skill4 }
-            ];
-
-            skillsData.forEach(skillObj => {
-                if (skillObj.name && skillObj.name.trim() !== "") {
-                    const sContainer = document.createElement("div");
-                    sContainer.className = "factory-skill-container";
-
-                    const skillType = getSkillType(skillObj.name);
-                    if (skillType !== "unknown") {
-                        const skillBadge = createTypeBadge(skillType);
-                        sContainer.appendChild(skillBadge);
-                    }
-
-                    const sDiv = document.createElement("div");
-                    sDiv.className = "factory-skill";
-                    sDiv.textContent = skillObj.name;
-                    sContainer.appendChild(sDiv);
-                    
-                    skillsContainer.appendChild(sContainer);
-                }
-            });
-            factoryDiv.appendChild(skillsContainer);
-            card.appendChild(factoryDiv);
-        }
-
-        const nameTag = document.createElement("div");
-        nameTag.className = "chara-name-tag";
-        const levelText = charData.chosenLevel ? `<br>Lv.${charData.chosenLevel}` : "";
-        nameTag.innerHTML = charData.name + levelText;
-        card.appendChild(nameTag);
-
-        if (charData.link !== ""){
-            const link = document.createElement("a");
-            link.className = "chara-link";
-            if (charData.link) link.href = charData.link;
-            link.target = "_blank";
-            link.rel = "noopener noreferrer";
-            link.textContent = "wiki ↗";
-            card.appendChild(link);
-        }
-        resultDisplay.appendChild(card);
+    selectedCharacters.forEach((charData, index) => {
+        // 共通関数を 'display' モードで、インデックスを渡して呼び出す
+        const card = createCharacterCard(charData, 'display', index);
+        resultDiv.appendChild(card);
     });
 
     document.getElementById("result").innerHTML = `
@@ -1675,13 +1389,14 @@ function resetToStart(){
     document.getElementById("optionArea").style.display = "block";
 
     // ドラフト中・結果画面の表示を非表示にする
-    //document.getElementById("selectedList").style.display = "none";
     document.getElementById("resultDisplay").style.display = "none";
     document.getElementById("boostNotice").style.display = "none";
     tableContainer.style.display = 'none';
     document.getElementById("result").innerHTML = "";
     document.getElementById("seed").innerHTML = "";
     document.getElementById("round").innerHTML = "";
+    document.getElementById("poolCount").innerHTML = "";
+    document.getElementById("scoutingResultDisplay").innerHTML = "";
 
     window.scrollTo({
         top: 0,
@@ -1689,14 +1404,198 @@ function resetToStart(){
     });
 }
 
-function updateSelectedList(){
-    const listDiv = document.getElementById("selectedList");
-    // styleFormがあれば名前の後ろにカッコ付きで追加する
-    listDiv.innerHTML = selectedCharacters.map((char, index) => {
-        const formSuffix = char.styleForm ? `（${char.styleForm}）` : "";
-        const levelSuffix = char.chosenLevel ? ` Lv.${char.chosenLevel}` : "";
-        return `<div class="selected-item">${index + 1}. ${char.name}${formSuffix}${levelSuffix}</div>`;
-    }).join("");
+/**
+ * キャラクターカードのHTML要素を生成する共通関数
+ * @param {Object} charData - キャラクターの情報
+ * @param {string} mode - 'choice' (スカウト選択肢用) または 'display' (結果・スカウト中一覧の表示用)
+ * @param {number} [index] - 表示する番号（0から始まるインデックス、省略可能）
+ * @returns {HTMLElement} 生成されたカードのDOM要素
+ */
+function createCharacterCard(charData, mode, index) {
+    const card = document.createElement("div");
+    card.className = "chara-card";
+
+    // 1. 画像コンテナの作成
+    const imgContainer = document.createElement("div");
+    imgContainer.className = "img-container";
+
+    const img = document.createElement("img");
+    img.className = "chara-img";
+    if (charData.imgFile && charData.imgFile.trim() !== "") {
+        img.src = `images/${characterSpriteFolder}/${charData.imgFile}.png`;
+    } else {
+        img.src = `images/${characterSpriteFolder}/${charData.name}.png`;
+    }
+    img.alt = charData.name;
+    img.onerror = function() {
+        img.src = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
+    };
+    imgContainer.appendChild(img);
+    
+    if (charData.styleForm) {
+        const icon = document.createElement("img");
+        icon.className = "style-icon";
+        icon.src = `images/icon/${charData.styleForm}.png`;
+        icon.alt = charData.styleForm;
+        icon.onerror = function() {
+            icon.src = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
+        };
+        imgContainer.appendChild(icon);
+    }
+    card.appendChild(imgContainer);
+
+    // 2. タイプバッジの作成
+    const typeContainer = document.createElement("div");
+    typeContainer.className = "type-container";
+    [charData.type1, charData.type2].forEach(type => {
+        if (type && type.trim() !== "") {
+            const badge = document.createElement("span");
+            badge.className = `type-badge type-${type}`;
+            badge.textContent = type;
+            typeContainer.appendChild(badge);
+        }
+    });
+    card.appendChild(typeContainer);
+
+    // 3. ファクトリー情報の作成（ルール有効時のみ）
+    if (activeRules.includes("factoryMode")) {
+        const factoryDiv = document.createElement("div");
+        factoryDiv.className = "factory-info";
+
+        const abLabel = document.createElement("div");
+        abLabel.className = "factory-label";
+        abLabel.textContent = "特性";
+        const abVal = document.createElement("div");
+        abVal.className = "factory-val";
+        abVal.style.marginBottom = "5px";
+        abVal.textContent = charData.ability || "-";
+        factoryDiv.appendChild(abLabel);
+        factoryDiv.appendChild(abVal);
+
+        const itemLabel = document.createElement("div");
+        itemLabel.className = "factory-label";
+        itemLabel.textContent = "持ち物";
+        factoryDiv.appendChild(itemLabel);
+
+        const itemContainer = document.createElement("div");
+        itemContainer.className = "factory-val-container";
+
+        if (charData.item && charData.item.trim() !== "") {
+            const itemIcon = document.createElement("img");
+            itemIcon.className = "factory-icon";
+            itemIcon.src = `images/item/${charData.item.trim()}.png`;
+            itemIcon.alt = charData.item;
+            itemIcon.onerror = function() {
+                itemIcon.src = `images/item/モンスターボール.png`;
+            };
+            itemContainer.appendChild(itemIcon);
+        }
+
+        const itemVal = document.createElement("div");
+        itemVal.className = "factory-val";
+        itemVal.textContent = charData.item || "-";
+        itemContainer.appendChild(itemVal);
+        factoryDiv.appendChild(itemContainer);
+
+        const skillsContainer = document.createElement("div");
+        skillsContainer.className = "factory-skills";
+
+        const skillsData = [
+            { name: charData.skill1 },
+            { name: charData.skill2 },
+            { name: charData.skill3 },
+            { name: charData.skill4 }
+        ];
+
+        skillsData.forEach(skillObj => {
+            if (skillObj.name && skillObj.name.trim() !== "") {
+                const sContainer = document.createElement("div");
+                sContainer.className = "factory-skill-container";
+
+                const skillType = getSkillType(skillObj.name);
+                const skillBadge = createTypeBadge(skillType);
+                sContainer.appendChild(skillBadge);
+
+                const sDiv = document.createElement("div");
+                sDiv.className = "factory-skill";
+                sDiv.textContent = skillObj.name;
+                sContainer.appendChild(sDiv);
+                
+                skillsContainer.appendChild(sContainer);
+            }
+        });
+        factoryDiv.appendChild(skillsContainer);
+        card.appendChild(factoryDiv);
+    }
+
+    // 4. フッター部分（ボタン or テキストタグ）の作成
+    const levelText = charData.chosenLevel ? `<br>Lv.${charData.chosenLevel}` : "";
+    const prefix = (typeof index === "number") ? `${index + 1}. ` : "";
+
+    if (mode === 'choice') {
+        // スカウト選択肢用のボタン
+        const button = document.createElement("button");
+        button.innerHTML = prefix + charData.name + levelText;
+        
+        // イベント処理
+        button.onclick = () => {
+            const existingPreview = resultBody.querySelector('.preview-row');
+            if (existingPreview) existingPreview.remove();
+            selectCharacter(charData);
+        };
+
+        button.addEventListener("mouseenter", () => {
+            if (tableContainer.style.display === 'none' || tableContainer.style.display === '') {
+                tableContainer.style.display = 'block';
+                headerRow.innerHTML = "";
+                typeDBGenerate();
+            }
+            const existingPreview = resultBody.querySelector('.preview-row');
+            if (existingPreview) existingPreview.remove();
+            addTypeRow(charData, true);
+        });
+
+        button.addEventListener("mouseleave", () => {
+            const existingPreview = resultBody.querySelector('.preview-row');
+            if (existingPreview) existingPreview.remove();
+        });
+
+        card.appendChild(button);
+    } else {
+        // 結果表示・スカウト中一覧用のテキストタグ
+        const nameTag = document.createElement("div");
+        nameTag.className = "chara-name-tag"; // CSSでスタイルを当てるためのクラス（必要に応じて）
+        //nameTag.innerHTML = prefix + charData.name + levelText;
+        nameTag.innerHTML = charData.name + levelText;
+        card.appendChild(nameTag);
+    }
+
+    // 5. 外部リンク（wikiリンク）の作成
+    if (charData.link !== "") {
+        const link = document.createElement("a");
+        link.className = "chara-link";
+        if (charData.link) link.href = charData.link;
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+        link.textContent = "wiki ↗";
+        card.appendChild(link);
+    }
+
+    return card;
+}
+
+
+function updateScoutingCardDisplay(){
+    const displayDiv = document.getElementById("scoutingResultDisplay");
+    if (!displayDiv) return;
+
+    displayDiv.innerHTML = "";
+
+    selectedCharacters.forEach((charData, index) => {
+        // 共通関数を 'display' モードで、インデックスを渡して呼び出す
+        const card = createCharacterCard(charData, 'display', index);
+        displayDiv.appendChild(card);
+    });
 }
 
 function stringToSeed(str) {
