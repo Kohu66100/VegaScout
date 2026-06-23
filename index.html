@@ -854,25 +854,25 @@ async function startGame(){
 
     // --- skillTableの調整 ---
     if (activeRules.includes("factoryMode")) {
-        // patchが「本家」または「選択作品と一致」するものだけに絞り込む
-        let filteredSkills = skillTable.filter(c => {
-            const patchFree = c.patch.trim() === "本家";
-            const patchSelected = c.patch.trim() === selectedPatchGlobal;
+        const skillMap = new Map();
+
+        for (const c of skillTable) {
+            const patch = c.patch.trim();
             
-            return patchFree || patchSelected;
-        });
-
-        // 同名スキルが重複している場合、selectedPatchGlobalに一致するほうを残す
-        skillTable = filteredSkills.filter((c, i, self) => {
-            const hasDuplicate = self.some((other, otherIdx) => 
-                otherIdx !== i && other.name === c.name
-            );
-
-            if (hasDuplicate) {
-                return c.patch.trim() === selectedPatchGlobal;
+            if (patch !== "本家" && patch !== selectedPatchGlobal) {
+                continue;
             }
-            return true;
-        });
+
+            // すでに同じ名前のスキルがMapにあるか確認
+            const existing = skillMap.get(c.name);
+
+            // まだ登録されていない、または既存のものが「本家」で今回のが「選択作品」なら上書き
+            if (!existing || (existing.patch.trim() === "本家" && patch === selectedPatchGlobal)) {
+                skillMap.set(c.name, c);
+            }
+        }
+        // Mapの値を配列に戻す
+        skillTable = Array.from(skillMap.values());
     }
     
 	// --- selectedPatchGlobal に応じたタイプ相性表の動的変更 ---
