@@ -237,7 +237,6 @@ select {
     position: relative;
     width: 110px;
     height: 110px;
-    margin-bottom: 8px;
 }
 
 .chara-img {
@@ -265,7 +264,7 @@ select {
 .type-container {
     display: flex;
     gap: 4px;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
     justify-content: center;
     width: 100%;
 }
@@ -344,7 +343,7 @@ select {
 }
 
 #roundInfo {
-    display: flex;
+    display: none;
     height: 40px;
     justify-content:space-between; 
     align-items: flex-end;
@@ -540,7 +539,7 @@ table td:nth-child(3) {
 </head>
 <body>
 
-<h1>ベガスカウト ver0.8</h1>
+<h1>ベガスカウト ver0.9</h1>
 
 <div id="startArea">
     <input type="text" id="username" placeholder="名前を入力">
@@ -734,6 +733,8 @@ table td:nth-child(3) {
     <p>特性/アイテム/技構成が決まった状態で提示されます。</p>
     <p>性格と努力値は指定されていません。</p>
     <p>同じ持ち物のキャラクターは提示されなくなります。</p>
+
+    <p>対応作品：<br>ベガプラス_3.1<br>プロキオン/デネブ_2018/04/01</p>
 </div>
 </details>
 
@@ -830,7 +831,12 @@ async function startGame(){
         }
 
     } catch (error) {
-        alert("エラーが発生しました: " + error.message);
+        if (activeRules.includes("factoryMode")) {
+            alert("エラー: " + `「${selectedPatchGlobal}」はファクトリーに対応していません。`);
+        }else{
+            alert("エラー: " + error.message);
+        }
+        
         return; // エラー時はここで処理をストップ
     }
     
@@ -847,7 +853,7 @@ async function startGame(){
             }
 
         } catch (error) {
-            alert("エラーが発生しました: " + error.message);
+            alert("エラー: " + error.message);
             return;
         }
     }
@@ -909,6 +915,7 @@ async function startGame(){
     document.getElementById("filterArea").style.display = "none";
     document.getElementById("generationArea").style.display = "none";
     document.getElementById("optionArea").style.display = "none";
+    document.getElementById("roundInfo").style.display = "flex";
     document.getElementById("boostNotice").style.display = "block";
     
     // リザルト表示をリセット
@@ -1325,6 +1332,7 @@ function showResult(){
     document.getElementById("boostNotice").style.margin = "0";
     document.getElementById("round").style.display = "none";
     document.getElementById("poolCount").style.display = "none";
+    document.getElementById("roundInfo").style.display = "none";
 
     document.getElementById("scoutingResultDisplay").innerHTML = ""; 
     document.getElementById("resultDisplay").style.display = "grid";
@@ -1425,6 +1433,7 @@ function resetToStart(){
     // ドラフト中・結果画面の表示を非表示にする
     document.getElementById("resultDisplay").style.display = "none";
     document.getElementById("boostNotice").style.display = "none";
+    document.getElementById("roundInfo").style.display = "none";
     tableContainer.style.display = 'none';
     document.getElementById("result").innerHTML = "";
     document.getElementById("seed").innerHTML = "";
