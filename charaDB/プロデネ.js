@@ -34,7 +34,7 @@ window.customCsvData =`name,type1,type2,MinLevel,MaxLevel,generation,filters,cha
 マビュート,ノーマル,あく,54,57,PD,一般,,,,https://w.atwiki.jp/altair1/pages/745.html
 ハブネーク,どく,,55,58,RS,一般,,輝石,,https://w.atwiki.jp/altair1/pages/746.html
 ジャベット,どく,あく,54,57,PD,一般,,,,https://w.atwiki.jp/altair1/pages/747.html
-ググズリー,ノーマル,かくとう,51,54,AS,一般,,,,https://w.atwiki.jp/altair1/pages/749.html
+ググズリー,ノーマル,かくとう,53,56,AS,一般,,,,https://w.atwiki.jp/altair1/pages/749.html
 ハンタマ,ゴースト,かくとう,55,58,AS,入手不可,,,,https://w.atwiki.jp/altair1/pages/750.html
 シャクゾラ,むし,ひこう,55,58,PD,一般,,,,https://w.atwiki.jp/altair1/pages/753.html
 ベノレート,むし,どく,55,58,PD,一般,,,,https://w.atwiki.jp/altair1/pages/756.html

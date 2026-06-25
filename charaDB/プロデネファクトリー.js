@@ -1,12 +1,16 @@
 window.customCsvData =`name,type1,type2,MinLevel,MaxLevel,generation,filters,characterRace,styleForm,imgFile,link,ability,item,skill1,skill2,skill3,skill4
 デモリガン,あく,フェアリー,47,50,PD,600族,,,,https://w.atwiki.jp/altair1/pages/963.html,マルチスケイル,ラムのみ,まおうのいかり,マジカルブレイク,じしん,つるぎのまい
-カソーダン,でんき,じめん,47,50,PD,600族,,,,https://w.atwiki.jp/altair1/pages/966.html,すなのちから,とつげきチョッキ,ガイアキューブ,パワーボルテージ,グラベルブレス,ボルトチェンジ
 デモリガン,あく,フェアリー,47,50,PD,600族,,,,https://w.atwiki.jp/altair1/pages/963.html,マルチスケイル,たべのこし,まおうのいかり,じしん,どくどく,つきのひかり
+デモリガン,あく,フェアリー,47,50,PD,600族,,,,https://w.atwiki.jp/altair1/pages/963.html,マルチスケイル,チーゴのみ,まおうのいかり,マジカルブレイク,じしん,つるぎのまい
+カソーダン,でんき,じめん,47,50,PD,600族,,,,https://w.atwiki.jp/altair1/pages/966.html,すなのちから,とつげきチョッキ,ガイアキューブ,パワーボルテージ,グラベルブレス,ボルトチェンジ
 カソーダン,でんき,じめん,47,50,PD,600族,,,,https://w.atwiki.jp/altair1/pages/966.html,すなのちから,オボンのみ,だいちのいかり,パワーボルテージ,でんじは,ボルトチェンジ
+カソーダン,でんき,じめん,47,50,PD,600族,,,,https://w.atwiki.jp/altair1/pages/966.html,すなのちから,じめんのジュエル,だいちのいかり,パワーボルテージ,グラベルブレス,ボルトチェンジ
 ラブリン,みず,ノーマル,49,52,ベガ,一般,,,,https://w.atwiki.jp/altair1/pages/950.html,すいすい,しんぴのしずく,しおふき,ハイドロポンプ,アイスバーン,おおあくび
 エアームド,はがね,ひこう,50,53,金銀,一般,,輝石,,https://w.atwiki.jp/altair1/pages/765.html,がんじょう,しんかのきせき,どくどく,はねやすめ,まきびし,ふきとばし
 エアメイル,はがね,ひこう,50,53,PD,一般,,,,https://w.atwiki.jp/altair1/pages/766.html,がんじょう,オッカのみ,メタルブラスト,ジェットシュート,ドリルライナー,つるぎのまい
-ドルマイン,でんき,,50,53,AS,一般,,,,https://w.atwiki.jp/altair1/pages/858.html,ぼうおん,シュカのみ,ほうでん,じりょくせん,ボルトチェンジ,かいでんぱ
+エアメイル,はがね,ひこう,50,53,PD,一般,,,,https://w.atwiki.jp/altair1/pages/766.html,がんじょう,たべのこし,ジェットシュート,ドレインパンチ,はねやすめ,のろい
+ドルマイン,でんき,,50,53,AS,一般,,,,https://w.atwiki.jp/altair1/pages/858.html,せいでんき,シュカのみ,ほうでん,じりょくせん,ボルトチェンジ,かいでんぱ
+ドルマイン,でんき,,50,53,AS,一般,,,,https://w.atwiki.jp/altair1/pages/858.html,ぼうおん,とつげきチョッキ,ほうでん,じりょくせん,ボルトチェンジ,イカサマ
 アメリシア,みず,,50,53,ベガ,一般,,,,https://w.atwiki.jp/altair1/pages/874.html,あめふらし,しめったいわ,ウェザーボール,アイスバーン,どくどく,じこさいせい
 シルドール,エスパー,フェアリー,50,53,AS,一般,,,,https://w.atwiki.jp/altair1/pages/932.html,トレース,たべのこし,バリアアタック,バリアー,おにび,じこさいせい
 プリモード,こおり,フェアリー,51,54,PD,一般,,,,https://w.atwiki.jp/altair1/pages/727.html,しぜんかいふく,いのちのたま,アイスバーン,ひかりのはどう,こごえるかぜ,ぜったいれいど
@@ -23,9 +27,11 @@ window.customCsvData =`name,type1,type2,MinLevel,MaxLevel,generation,filters,cha
 メラザード,ほのお,かくとう,52,55,PD,一般,,,,https://w.atwiki.jp/altair1/pages/714.html,てつのこぶし,いのちのたま,ドレインパンチ,いかりのほのお,マッハパンチ,ストレッチ
 アスイーツ,こおり,,52,55,ベガ,一般,,輝石,,https://w.atwiki.jp/altair1/pages/726.html,しぜんかいふく,しんかのきせき,ぜったいれいど,どくどく,とける,じこさいせい
 メタゲラス,はがね,じめん,52,55,AS,一般,,,,https://w.atwiki.jp/altair1/pages/731.html,いかく,とつげきチョッキ,じしん,メタルホーン,フリーズショック,でんこうせっか
+メタゲラス,はがね,じめん,52,55,AS,一般,,,,https://w.atwiki.jp/altair1/pages/731.html,いかく,たべのこし,じしん,バリアアタック,つのドリル,マグナライズ
 フィニクス,ほのお,ドラゴン,52,55,AS,一般,,,,https://w.atwiki.jp/altair1/pages/774.html,ふゆう,ドラゴンジュエル,ドラゴンビート,かえんほうしゃ,しんそく,ニトロチャージ
 ビャクガー,こおり,でんき,52,55,PD,一般,,,,https://w.atwiki.jp/altair1/pages/805.html,でんきエンジン,でんきのジュエル,エレキインパクト,フリーズショック,じならし,ねこだまし
-コファルド,こおり,あく,52,55,PD,一般,,,,https://w.atwiki.jp/altair1/pages/808.html,ファーコート,ロゼルのみ,アイスバーン,ワームホール,クリアボール,あまえる
+コファルド,こおり,あく,52,55,PD,一般,,,,https://w.atwiki.jp/altair1/pages/808.html,ファーコート,ロゼルのみ,ワームホール,フリーズドライ,クリアボール,あまえる
+コファルド,こおり,あく,52,55,PD,一般,,,,https://w.atwiki.jp/altair1/pages/808.html,ファーコート,しろいハーブ,ブラックホール,フリーズドライ,クリアボール,ねこだまし
 オオペラー,エスパー,ひこう,52,55,ベガ,一般,,,,https://w.atwiki.jp/altair1/pages/839.html,おみとおし,ラムのみ,めぐみのつばさ,サイコショック,すなかぜ,おしゃべり
 ドククラゲ,みず,どく,52,55,初代,一般,,輝石,,https://w.atwiki.jp/altair1/pages/852.html,ヘドロえき,しんかのきせき,うずしお,アシッドボム,バリア―,ミラータイプ
 ガルラーダ,ひこう,,52,55,ベガ,一般,,,,https://w.atwiki.jp/altair1/pages/871.html,すてみ,しろいハーブ,ブレイブバード,すてみタックル,インファイト,からをやぶる
