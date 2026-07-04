@@ -335,6 +335,14 @@ select {
 .factory-skill:last-child {
     border-bottom: none;
 }
+.factory-moveSpeed {
+    text-align: right;
+    font-size: 13px;
+    color: #2d3748;
+    margin-left: auto;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
 .factory-icon {
     width: 20px;
     height: 20px;
@@ -457,9 +465,9 @@ table {
 
 th, td {
     border: 1px solid #ddd;
-    padding: 10px 4px;
+    padding: 4px 4px;
     text-align: center;
-    font-size: 13px;
+    font-size: 10px;
 }
 
 th {
@@ -469,7 +477,7 @@ th {
 
 table th:nth-child(1),
 table td:nth-child(1) {
-    width: 180px;
+    width: 80px;
     padding-left: 8px;
     font-weight: bold;
 }
@@ -480,14 +488,14 @@ table td:nth-child(1) {
 
 table th:nth-child(2),
 table td:nth-child(2) {
-    width: 65px;
+    width: 30px;
     font-weight: bold;
     text-shadow: 1px 1px 1px rgba(0,0,0,0.3);
 }
 
 table th:nth-child(3),
 table td:nth-child(3) {
-    width: 65px;
+    width: 30px;
     font-weight: bold;
     text-shadow: 1px 1px 1px rgba(0,0,0,0.3);
 }
@@ -496,13 +504,13 @@ table td:nth-child(3) {
     writing-mode: vertical-rl;
     letter-spacing: 2px;
     width: 12px;
-    height: 70px;
+    height: 50px;
     vertical-align: middle;
 }
 
 /* テーブル表示領域が伸縮して下部要素がズレるのを防ぐコンテナ */
 .table-container {
-    min-height: 350px;
+    min-height: 200px;
     max-width: 900px;
     margin: 20px auto;
     display: none;
@@ -718,11 +726,6 @@ table td:nth-child(3) {
     <p>全てのキャラクターがランダムなレベルで提示されます。</p>
     <p>評価が低いキャラほど高レベルで出現します。</p>
     <p>どのようなゲームバランスになるかは誰にも予想できません。</p>
-    <p>◆調整目安</p>
-    <p>御三家：Lv52～Lv55</p>
-    <p>序盤ノーマル：Lv58～Lv61</p>
-    <p>強い準伝：Lv47～Lv50</p>
-    
     <p>未研究の作品は全員Lv50～Lv53にしています。</p>
 </div>
 </details>
@@ -967,14 +970,14 @@ function showChoices(){
     let currentPool = remainingCharacters;
     let noticeTexts = [];
     
-    // --- ファクトリーモードでアイテムが「停止」のキャラを除外 ---
+    // --- ファクトリーモードで技1が空欄のキャラを除外 ---
     if (activeRules.includes("factoryMode")) {
         currentPool = currentPool.filter(c => {
-            return !(c.item && c.item.trim() === "停止");
+            return c.skill1 && c.skill1.trim() !== "";
         });
     }
 
-    // --- 【追加】特殊ルール：「しんかのきせき追加」が無効なときは輝石キャラをあらかじめ除外 ---
+    // --- 「しんかのきせき追加」が無効なときは輝石キャラをあらかじめ除外 ---
     if (!activeRules.includes("Eviolite")) {
         currentPool = currentPool.filter(c => {
             return !(c.styleForm && c.styleForm.trim() === "輝石");
@@ -1249,7 +1252,6 @@ function addTypeRow(characterObj, isPreview = false) {
     const formText = characterObj.styleForm ? `（${characterObj.styleForm}）` : "";
     const levelText = characterObj.chosenLevel ? ` Lv.${characterObj.chosenLevel}` : "";
     
-    // プレビュー時は名前の頭に「(プレビュー)」と付けると分かりやすいです（お好みで）
     const prefix = isPreview ? "" : "";
     const fullNameText = prefix + characterObj.name + formText + levelText;
     
@@ -1365,6 +1367,16 @@ function getSkillType(skillName) {
     return skill ? skill.type.trim() : "unknown";
 }
 
+function getSkillMoveSpeed(skillName) {
+    if (!skillName) return "unknown";
+    
+    // skillTableからnameが一致するレコードを探す
+    const skill = skillTable.find(s => s.name === skillName.trim());
+    
+    // 見つかればそのtypeを、見つからなければ "unknown" を返す
+    return skill ? skill.moveSpeed.trim() : "unknown";
+}
+
 function createTypeBadge(typeName) {
     const badge = document.createElement("span");
     // 既存のタイプカラーCSSクラス（.type-ほのお 等）を適用
@@ -1416,6 +1428,9 @@ function copyResult(){
             alert("コピーに失敗しました");
         }
         document.body.removeChild(textarea);
+    }
+    if (activeRules.includes("factoryMode") && selectedPatchGlobal === "ベガ") {
+        dumpFile(selectedCharacters);
     }
 }
 
@@ -1527,7 +1542,6 @@ function createCharacterCard(charData, mode, index) {
             const itemIcon = document.createElement("img");
             itemIcon.className = "factory-icon";
             itemIcon.src = `images/item/${charData.item.trim()}.png`;
-            itemIcon.alt = charData.item;
             itemIcon.onerror = function() {
                 itemIcon.src = `images/item/モンスターボール.png`;
             };
@@ -1563,6 +1577,14 @@ function createCharacterCard(charData, mode, index) {
                 sDiv.className = "factory-skill";
                 sDiv.textContent = skillObj.name;
                 sContainer.appendChild(sDiv);
+
+                if (selectedPatchGlobal === "技ver"){
+                    const sMoveSpeed = document.createElement("div");
+                    sMoveSpeed.className = "factory-moveSpeed";
+                    const skillMoveSpeed = getSkillMoveSpeed(skillObj.name);
+                    sMoveSpeed.textContent = skillMoveSpeed;
+                    sContainer.appendChild(sMoveSpeed);
+                }
                 
                 skillsContainer.appendChild(sContainer);
             }
@@ -1684,6 +1706,115 @@ document.getElementById("cancelAllGeneration").addEventListener("click", () => {
     });
 });
 
+function dumpFile(charData) {
+    // --- 仮実装：スカウト結果から手持ちデータ6体分を生成 --- 
+
+    // 設定：固定の空白枠（100byte）のデータ（後ろから15番目がFF、他は00）
+    const emptyDumpStr = "00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 FF 00 00 00 00 00 00 00 00 00 00 00 00 00 00";
+    
+    // 16進数文字列を Uint8Array（100バイト）に変換するヘルパー関数
+    function hexStringToBytes(hexStr) {
+        return new Uint8Array(hexStr.trim().split(/\s+/).map(h => parseInt(h, 16)));
+    }
+    
+    const emptyBytes = hexStringToBytes(emptyDumpStr);
+
+    // 選択されたキャラクター（selectedCharacters）のチェック
+    if (!charData || charData.length === 0) {
+        console.error("スカウトされたキャラクター（selectedCharacters）が見つかりません。");
+        return;
+    }
+
+    const totalChars = charData.length;
+    // 6体単位で区切ったときの必要チャンク（ブロック）数を計算
+    const chunkCount = Math.ceil(totalChars / 6); 
+    const totalBytesCount = chunkCount * 600; // 合計バイト数
+
+    // 出力用の巨大なUint8Arrayを作成
+    const resultBinary = new Uint8Array(totalBytesCount);
+    let byteOffset = 0;
+
+    console.log(`【バイナリ出力開始】 キャラクター数: ${totalChars}体 -> ${chunkCount}グループ (${totalBytesCount}バイト)`);
+
+    // 6体ずつのグループに分けて処理
+    for (let chunkIndex = 0; chunkIndex < chunkCount; chunkIndex++) {
+        for (let memberIndex = 0; memberIndex < 6; memberIndex++) {
+            const charIndex = chunkIndex * 6 + memberIndex;
+
+            if (charIndex < totalChars) {
+                // キャラクターが存在する場合
+                const char = charData[charIndex];
+                
+                if (char.dump && char.dump.trim() !== "") {
+                    const charBytes = hexStringToBytes(char.dump);
+                    if (charBytes.length === 100) {
+                        resultBinary.set(charBytes, byteOffset);
+                    } else {
+                        console.warn(`警告: ${char.name} のdumpデータが100byteではありません (${charBytes.length}byte)。`);
+                        resultBinary.set(charBytes.subarray(0, 100), byteOffset); // 安全のため切り詰め、または0埋め
+                    }
+                } else {
+                    console.warn(`警告: ${char.name} にdumpデータが存在しないため、空白枠で埋めます。`);
+                    resultBinary.set(emptyBytes, byteOffset);
+                }
+            } else {
+                // 6体に満たない空き枠の場合（空白枠の固定データを入れる）
+                resultBinary.set(emptyBytes, byteOffset);
+            }
+            byteOffset += 100;
+        }
+    }
+
+    // 16進数文字列テキストとしてコンソールに表示
+    const hexResultArray = [];
+    resultBinary.forEach(b => {
+        hexResultArray.push(b.toString(16).toUpperCase().padStart(2, '0'));
+    });
+    
+    let formattedHexText = "";
+    // 600バイト（6体分）ずつループを回す
+    for (let chunkStart = 0; chunkStart < hexResultArray.length; chunkStart += 600) {
+        const chunkSlice = hexResultArray.slice(chunkStart, chunkStart + 600);
+        
+        // 1つのグループの中を16バイトごとに改行して並べる
+        for (let i = 0; i < chunkSlice.length; i += 16) {
+            formattedHexText += chunkSlice.slice(i, i + 16).join(" ") + "\n";
+        }
+        
+        // 次のグループがある場合のみ、区切りの空白行（空行）を追加する
+        if (chunkStart + 600 < hexResultArray.length) {
+            formattedHexText += "\n"; 
+        }
+    }
+
+    console.log("%c▼ 手持ちデータ (コピー用)", "color: #2c3e50; font-weight: bold; font-size: 14px;");
+    console.log(formattedHexText);
+
+    if (byteOffset <= 600){
+        // そのままバイナリファイルとしてダウンロードできるリンクをコンソールに生成
+        const blob = new Blob([resultBinary], { type: "application/octet-stream" });
+        const url = URL.createObjectURL(blob);
+        
+        console.log("%c▼ バイナリファイルとしてダウンロード", "color: #27ae60; font-weight: bold; font-size: 14px;");
+        console.log(`右のリンクをクリックして保存してください: ${url}`);
+        console.log("（または、downloadScoutData() を実行すると保存されます）");
+
+        // グローバルに関数を登録して、すぐダウンロードできるようにする
+        window.downloadScoutData = () => {
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `scout_${totalChars}chars.DMP`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        };
+        
+        // 自動ダウンロードを実行したい場合はコメントアウトを解除してください
+        //window.downloadScoutData();
+    }else{
+        console.log("バイナリファイルのダウンロードは6体以下限定です");
+    }
+}
 </script>
 
 </body>
