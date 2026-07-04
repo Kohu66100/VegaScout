@@ -1,4 +1,4 @@
-window.customCsvData =`name,type1,type2,MinLevel,MaxLevel,generation,filters,characterRace,styleForm,imgFile,link,ability,item,skill1,skill2,skill3,skill4
+window.customCsvData =`name,type1,type2,MinLevel,MaxLevel,generation,filters,characterRace,styleForm,imgFile,link,ability,item,skill1,skill2,skill3,skill4,dump
 デモリガン,あく,フェアリー,47,50,PD,600族,,,,https://w.atwiki.jp/altair1/pages/963.html,マルチスケイル,ラムのみ,まおうのいかり,マジカルブレイク,じしん,つるぎのまい
 デモリガン,あく,フェアリー,47,50,PD,600族,,,,https://w.atwiki.jp/altair1/pages/963.html,マルチスケイル,たべのこし,まおうのいかり,じしん,どくどく,つきのひかり
 デモリガン,あく,フェアリー,47,50,PD,600族,,,,https://w.atwiki.jp/altair1/pages/963.html,マルチスケイル,チーゴのみ,まおうのいかり,マジカルブレイク,じしん,つるぎのまい
