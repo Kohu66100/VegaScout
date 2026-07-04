@@ -1792,8 +1792,8 @@ function dumpFile(charData) {
 
     if (byteOffset <= 600){
         // そのままバイナリファイルとしてダウンロードできるリンクをコンソールに生成
-        // const blob = new Blob([resultBinary], { type: "application/octet-stream" });
-        // const url = URL.createObjectURL(blob);
+        const blob = new Blob([resultBinary], { type: "application/octet-stream" });
+        const url = URL.createObjectURL(blob);
         
         console.log("%c▼ バイナリファイルとしてダウンロード", "color: #27ae60; font-weight: bold; font-size: 14px;");
         //console.log(`右のリンクをクリックして保存してください: ${url}`);
