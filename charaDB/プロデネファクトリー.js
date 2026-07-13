@@ -9,7 +9,7 @@ window.customCsvData =`name,type1,type2,MinLevel,MaxLevel,generation,filters,cha
 カソーダン,でんき,じめん,50,53,PD,600族,,,,https://w.atwiki.jp/altair1/pages/966.html,すなのちから,オボンのみ,だいちのいかり,パワーボルテージ,でんじは,ボルトチェンジ,
 ラブリン,みず,ノーマル,50,53,ベガ,一般,,,,https://w.atwiki.jp/altair1/pages/950.html,すいすい,しんぴのしずく,しおふき,ハイドロポンプ,アイスバーン,おおあくび,
 エアームド,はがね,ひこう,50,53,金銀,一般,,輝石,,https://w.atwiki.jp/altair1/pages/765.html,がんじょう,しんかのきせき,どくどく,はねやすめ,まきびし,ふきとばし,
-エアメイル,はがね,ひこう,50,53,PD,一般,,,,https://w.atwiki.jp/altair1/pages/766.html,がんじょう,オッカのみ,メタルブラスト,ジェットシュート,ドリルライナー,つるぎのまい,
+エアメイル,はがね,ひこう,50,53,PD,一般,,,,https://w.atwiki.jp/altair1/pages/766.html,がんじょう,オッカのみ,メタルブラスト,ジェットシュート,ドリルライナー,はねやすめ,
 エアメイル,はがね,ひこう,50,53,PD,一般,,,,https://w.atwiki.jp/altair1/pages/766.html,がんじょう,たべのこし,ジェットシュート,ドレインパンチ,はねやすめ,のろい,
 ドルマイン,でんき,,51,54,AS,一般,,,,https://w.atwiki.jp/altair1/pages/858.html,せいでんき,シュカのみ,ほうでん,じりょくせん,ボルトチェンジ,かいでんぱ,
 ドルマイン,でんき,,51,54,AS,一般,,,,https://w.atwiki.jp/altair1/pages/858.html,ぼうおん,とつげきチョッキ,ほうでん,じりょくせん,ボルトチェンジ,イカサマ,
