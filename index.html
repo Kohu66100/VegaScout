@@ -282,6 +282,41 @@ select {
     z-index: 5;
 }
 
+/* 種族値表示用テーブルスタイル */
+.base-stats-table {
+    width: 120%;
+    table-layout: fixed; /* 6列を均等に分割 */
+    margin-bottom: 1px;
+    border-collapse: collapse;
+    background-color: transparent;
+    box-shadow: none;
+}
+
+.base-stats-table th, 
+.base-stats-table td {
+    border: none;
+    padding: 1px 0;
+    text-align: center; /* 中央揃えに統一 */
+    font-size: 12px;
+    font-family: monospace, monospace;
+    line-height: 1.2;
+    background: transparent;
+    width: auto; /* #resultTable の幅指定を打ち消し */
+}
+
+.base-stats-table th {
+    font-weight: bold;
+    color: #666;
+}
+
+.base-stats-table th.max-stat {
+    color: #666; /* 最も数値が高いステータス名を強調（没） */
+}
+
+.base-stats-table td {
+    color: #333;
+}
+
 /* ファクトリーモード用 */
 .factory-info {
     width: 100%;
@@ -454,7 +489,7 @@ select {
     display: none;
 }
 
-table {
+#resultTable {
     width: 100%;
     margin: 0 auto;
     border-collapse: collapse;
@@ -463,38 +498,31 @@ table {
     table-layout: fixed;
 }
 
-th, td {
+#resultTable th, 
+#resultTable td {
     border: 1px solid #ddd;
     padding: 4px 4px;
     text-align: center;
     font-size: 10px;
 }
 
-th {
+#resultTable th {
     background-color: #2c3e50;
     color: white;
 }
 
-table th:nth-child(1),
-table td:nth-child(1) {
+#resultTable th:nth-child(1),
+#resultTable td:nth-child(1) {
     width: 80px;
     padding-left: 8px;
     font-weight: bold;
-}
-
-table td:nth-child(1) {
     text-align: left;
 }
 
-table th:nth-child(2),
-table td:nth-child(2) {
-    width: 30px;
-    font-weight: bold;
-    text-shadow: 1px 1px 1px rgba(0,0,0,0.3);
-}
-
-table th:nth-child(3),
-table td:nth-child(3) {
+#resultTable th:nth-child(2),
+#resultTable td:nth-child(2),
+#resultTable th:nth-child(3),
+#resultTable td:nth-child(3) {
     width: 30px;
     font-weight: bold;
     text-shadow: 1px 1px 1px rgba(0,0,0,0.3);
@@ -547,7 +575,7 @@ table td:nth-child(3) {
 </head>
 <body>
 
-<h1>ベガスカウト ver1.0</h1>
+<h1>ベガスカウト ver1.1</h1>
 
 <div id="startArea">
     <input type="text" id="username" placeholder="名前を入力">
@@ -1515,6 +1543,49 @@ function createCharacterCard(charData, mode, index) {
     });
     card.appendChild(typeContainer);
 
+    // 種族値ステータスのテーブル表示
+    const statLabels = ["H", "A", "B", "C", "D", "S"];
+    const stats = [
+        charData.baseH,
+        charData.baseA,
+        charData.baseB,
+        charData.baseC,
+        charData.baseD,
+        charData.baseS
+    ];
+
+    // いずれかのステータス値が存在する場合のみ表示
+    if (stats.some(val => val !== undefined && val !== null && val !== "")) {
+        // 数値変換（未定義や数値以外は0として扱う）
+        const numericStats = stats.map(val => Number(val) || 0);
+        const maxVal = Math.max(...numericStats);
+
+        const table = document.createElement("table");
+        table.className = "base-stats-table";
+
+        const trHeader = document.createElement("tr");
+        const trBody = document.createElement("tr");
+
+        statLabels.forEach((label, idx) => {
+            const th = document.createElement("th");
+            th.textContent = label;
+            
+            // 数値が1以上かつ最高値の場合、ヘッダー文字（H/A/B/C/D/S）を赤色強調
+            if (maxVal > 0 && numericStats[idx] === maxVal) {
+                th.className = "max-stat";
+            }
+            trHeader.appendChild(th);
+
+            const td = document.createElement("td");
+            td.textContent = stats[idx] || "-";
+            trBody.appendChild(td);
+        });
+
+        table.appendChild(trHeader);
+        table.appendChild(trBody);
+        card.appendChild(table);
+    }
+
     // 3. ファクトリー情報の作成（ルール有効時のみ）
     if (activeRules.includes("factoryMode")) {
         const factoryDiv = document.createElement("div");
@@ -1593,7 +1664,7 @@ function createCharacterCard(charData, mode, index) {
         card.appendChild(factoryDiv);
     }
 
-    // 4. フッター部分（ボタン or テキストタグ）の作成
+    // フッター部分（ボタン or テキストタグ）の作成
     const levelText = charData.chosenLevel ? `<br>Lv.${charData.chosenLevel}` : "";
     const prefix = (typeof index === "number") ? `${index + 1}. ` : "";
 
