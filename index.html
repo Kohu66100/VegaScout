@@ -315,6 +315,13 @@ select {
 
 .base-stats-table td {
     color: #333;
+    font-weight: bold; /* 数字を読みやすくするために太字化 */
+    position: relative;
+    /* 背景をグラデーションにして下から上に伸びる棒グラフを作成 */
+    background-repeat: no-repeat;
+    background-position: bottom; /* 棒グラフをセルの一番下に配置 */
+    background-size: 100% var(--stat-percent, 0%); /* 高さの割合をJSから動的変更 */
+    background-image: linear-gradient(to top, rgba(255, 152, 0, 0.4), rgba(255, 152, 0, 0.4)); /* オレンジ色（透過あり） */
 }
 
 /* ファクトリーモード用 */
@@ -1577,7 +1584,17 @@ function createCharacterCard(charData, mode, index) {
             trHeader.appendChild(th);
 
             const td = document.createElement("td");
+            const val = numericStats[idx];
             td.textContent = stats[idx] || "-";
+
+            // ★追加: 最高値を基準にした割合(%)を計算し、CSS変数へ渡して棒グラフを表示
+            if (maxVal > 0 && val > 0) {
+                const percent = Math.round((val / maxVal) * 100);
+                td.style.setProperty("--stat-percent", `${percent}%`);
+            } else {
+                td.style.setProperty("--stat-percent", "0%");
+            }
+
             trBody.appendChild(td);
         });
 
