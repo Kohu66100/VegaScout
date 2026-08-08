@@ -594,6 +594,7 @@ select {
     <div class="patch-group">
         <label class="patch-label"><input type="radio" name="patchFilter" value="ベガ" checked>ベガ</label>
         <label class="patch-label"><input type="radio" name="patchFilter" value="プロデネ">プロデネ</label>
+        <label class="patch-label"><input type="radio" name="patchFilter" value="PDplus">PDplus</label>
     </div>
 </div>
 
@@ -924,7 +925,7 @@ async function startGame(){
 
     // typesList の並び順
     // ["ノーマル", "ほのお", "みず", "でんき", "くさ", "こおり", "かくとう", "どく", "じめん", "ひこう", "エスパー", "むし", "いわ", "ゴースト", "ドラゴン", "あく", "はがね", "フェアリー", "空白"]
-    if (selectedPatchGlobal === "プロデネ") { 
+    if (selectedPatchGlobal === "プロデネ" || selectedPatchGlobal === "PDplus") { 
         if (typeChart["はがね"]) {
             typeChart["はがね"][13] = 1.0; // ゴーストの倍率を 0.5 → 1.0 に変更
             typeChart["はがね"][15] = 1.0; // あくの倍率を 0.5 → 1.0 に変更
@@ -932,6 +933,10 @@ async function startGame(){
     }
 
     characterSpriteFolder = selectedPatchGlobal;
+
+    if(selectedPatchGlobal === "PDplus") {
+        characterSpriteFolder = "プロデネ"
+    }
 
     remainingCharacters = [...characterTable];
     selectedCharacters = [];
@@ -1354,7 +1359,7 @@ function updateFairyColumnVisibility() {
     const fairyElements = resultTable.querySelectorAll('[data-type="フェアリー"]');
     
     fairyElements.forEach(el => {
-        if (selectedPatchGlobal === "プロデネ") {
+        if (selectedPatchGlobal === "プロデネ" || selectedPatchGlobal === "PDplus") {
             el.style.display = "";
         } else {
             el.style.display = "none";
