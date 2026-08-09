@@ -773,7 +773,7 @@ select {
     <p>性格と努力値は指定されていません。</p>
     <p>同じ持ち物のキャラクターは提示されなくなります。</p>
 
-    <p>対応作品：<br>ベガプラス_3.1<br>プロキオン/デネブ_2018/04/01</p>
+    <p>対応作品：<br>ベガプラス_3.1<br>プロキオン/デネブ_2018/04/01<br>PDplus_0.5beta</p>
 </div>
 </details>
 
@@ -901,10 +901,14 @@ async function startGame(){
     if (activeRules.includes("factoryMode")) {
         const skillMap = new Map();
 
+        let skillPatch = selectedPatchGlobal
+        if (skillPatch === "PDplus") {
+            skillPatch = "プロデネ"
+        }
         for (const c of skillTable) {
             const patch = c.patch.trim();
             
-            if (patch !== "本家" && patch !== selectedPatchGlobal) {
+            if (patch !== "本家" && patch !== skillPatch) {
                 continue;
             }
 
@@ -912,7 +916,7 @@ async function startGame(){
             const existing = skillMap.get(c.name);
 
             // まだ登録されていない、または既存のものが「本家」で今回のが「選択作品」なら上書き
-            if (!existing || (existing.patch.trim() === "本家" && patch === selectedPatchGlobal)) {
+            if (!existing || (existing.patch.trim() === "本家" && patch === skillPatch)) {
                 skillMap.set(c.name, c);
             }
         }
