@@ -1445,7 +1445,7 @@ function createTypeBadge(typeName) {
     return badge;
 }
 
-function copyResult(){
+async function copyResult(){
     // 各キャラクターのnameの後ろに、styleFormがあればカッコ付きで追加する
     const text = selectedCharacters.map((char, index) => {
         // styleFormが存在し、かつ空文字でなければ「（形式）」を後ろに付ける
@@ -1474,7 +1474,7 @@ function copyResult(){
         document.body.removeChild(textarea);
     }
     if (activeRules.includes("factoryMode") && selectedPatchGlobal === "ベガ") {
-        dumpFile(selectedCharacters);
+        await dumpFile(selectedCharacters);
     }
 }
 
@@ -1803,9 +1803,7 @@ document.getElementById("cancelAllGeneration").addEventListener("click", () => {
     });
 });
 
-function dumpFile(charData) {
-    // --- 仮実装：スカウト結果から手持ちデータ6体分を生成 --- 
-
+async function dumpFile(charData) {
     // 設定：固定の空白枠（100byte）のデータ（後ろから15番目がFF、他は00）
     const emptyDumpStr = "00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 FF 00 00 00 00 00 00 00 00 00 00 00 00 00 00";
     
@@ -1825,44 +1823,69 @@ function dumpFile(charData) {
     const totalChars = charData.length;
     // 6体単位で区切ったときの必要チャンク（ブロック）数を計算
     const chunkCount = Math.ceil(totalChars / 6); 
-    const totalBytesCount = chunkCount * 600; // 合計バイト数
+    const totalBytesCount = chunkCount * 600;
 
     // 出力用の巨大なUint8Arrayを作成
     const resultBinary = new Uint8Array(totalBytesCount);
-    let byteOffset = 0;
 
     console.log(`【バイナリ出力開始】 キャラクター数: ${totalChars}体 -> ${chunkCount}グループ (${totalBytesCount}バイト)`);
 
-    // 6体ずつのグループに分けて処理
+    // 1体ごとに factoryDB/(作品名)/(dump).DMP を読み出す関数
+    async function fetchCharaDmp(char) {
+        // dump が存在すればそれを使用し、無ければ char.name を使用（フォールバック）
+        const filename = char ? (char.dump || char.name) : null;
+        if (!filename) return emptyBytes;
+        
+        // パス例: factoryDB/ベガ/リーテイル_2.DMP
+        const filePath = `factoryDB/${selectedPatchGlobal}/${filename}.DMP`;
+        try {
+            const response = await fetch(filePath);
+            if (!response.ok) {
+                console.warn(`警告: ${filePath} の取得に失敗しました(Status: ${response.status})。空白枠を使用します。`);
+                return emptyBytes;
+            }
+            const buffer = await response.arrayBuffer();
+            const bytes = new Uint8Array(buffer);
+            
+            if (bytes.length === 100) {
+                return bytes;
+            } else if (bytes.length > 100) {
+                //console.warn(`警告: ${filename}.DMP が100byteを超えています(${bytes.length}byte)。切り詰めます。`);
+                return bytes.subarray(0, 100);
+            } else {
+                console.warn(`警告: ${filename}.DMP が100byte未満です(${bytes.length}byte)。残りを0埋めします。`);
+                const padded = new Uint8Array(100);
+                padded.set(bytes);
+                return padded;
+            }
+        } catch (e) {
+            console.warn(`エラー: ${filePath} の読み込み中に例外が発生しました。`, e);
+            return emptyBytes;
+        }
+    }
+
+    // 全キャラクターのDMPファイルを並列で取得
+    const loadedDmpList = await Promise.all(charData.map(char => fetchCharaDmp(char)));
+
+    let byteOffset = 0;
+
+    // 6体ずつのグループに分けてバイナリ配列に配置
     for (let chunkIndex = 0; chunkIndex < chunkCount; chunkIndex++) {
         for (let memberIndex = 0; memberIndex < 6; memberIndex++) {
             const charIndex = chunkIndex * 6 + memberIndex;
 
             if (charIndex < totalChars) {
-                // キャラクターが存在する場合
-                const char = charData[charIndex];
-                
-                if (char.dump && char.dump.trim() !== "") {
-                    const charBytes = hexStringToBytes(char.dump);
-                    if (charBytes.length === 100) {
-                        resultBinary.set(charBytes, byteOffset);
-                    } else {
-                        console.warn(`警告: ${char.name} のdumpデータが100byteではありません (${charBytes.length}byte)。`);
-                        resultBinary.set(charBytes.subarray(0, 100), byteOffset); // 安全のため切り詰め、または0埋め
-                    }
-                } else {
-                    console.warn(`警告: ${char.name} にdumpデータが存在しないため、空白枠で埋めます。`);
-                    resultBinary.set(emptyBytes, byteOffset);
-                }
+                const charBytes = loadedDmpList[charIndex];
+                resultBinary.set(charBytes, byteOffset);
             } else {
-                // 6体に満たない空き枠の場合（空白枠の固定データを入れる）
+                // 6体に満たない空き枠の場合
                 resultBinary.set(emptyBytes, byteOffset);
             }
             byteOffset += 100;
         }
     }
 
-    // 16進数文字列テキストとしてコンソールに表示
+    // 16進数文字列テキストとしてコンソール表示用フォーマット
     const hexResultArray = [];
     resultBinary.forEach(b => {
         hexResultArray.push(b.toString(16).toUpperCase().padStart(2, '0'));
