@@ -1530,8 +1530,10 @@ async function copyResult(){
         }
         document.body.removeChild(textarea);
     }
-    if (activeRules.includes("factoryMode") && selectedPatchGlobal === "ベガ") {
-        await dumpFile(selectedCharacters);
+    if (activeRules.includes("factoryMode")) {
+        if (selectedPatchGlobal === "ベガ" || selectedPatchGlobal === "プロデネ") {
+            await dumpFile(selectedCharacters);
+        }
     }
 }
 
